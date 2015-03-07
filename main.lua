@@ -1,4 +1,5 @@
 require("map")
+Camera = require "hump.camera"
 debug = true
 
 player = {
@@ -20,6 +21,7 @@ function love.load(arg)
     generate_map()
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
+    camera = Camera(player.x, player.y)
 end
 
 function love.update(dt)
@@ -56,13 +58,9 @@ function handle_player_keys(dt)
         player.y = old_y
     end
 
-    -- update map offset
-    map.offset.x = player.x - love.window.getWidth() / 2
-    map.offset.x = math.max(map.offset.x, 0)
-    map.offset.x = math.min(map.offset.x, map.height * tile_h - love.window.getWidth())
-    map.offset.y = player.y - love.window.getHeight() / 2
-    map.offset.y = math.max(map.offset.y, 0)
-    map.offset.y = math.min(map.offset.y, map.width * tile_w - love.window.getHeight())
+    -- update camera
+    local dx, dy = player.x - camera.x, player.y - camera.y
+    camera:move(dx/20, dy/20)
 end
 
 function check_player_collision()
@@ -73,8 +71,13 @@ function check_player_collision()
     return map.grid[x1][y1] == tiles.wall or map.grid[x2][y2] == tiles.wall
 end
 
+function love.resize(w, h)
+    camera:zoomTo(h / 1080)
+end
+
 function love.draw()
-    draw_map()
-    love.graphics.draw(player.image,
-        player.x - map.offset.x, player.y - map.offset.y)
+    camera:attach()
+    draw_map(camera)
+    love.graphics.draw(player.image, player.x , player.y)
+    camera:detach()
 end

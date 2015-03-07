@@ -12,13 +12,10 @@ tile_images = {
 }
 
 map = {
-    offset = {x = 0, y = 0},
     width = 30,
     height = 30,
     grid = nil,
 }
-
-map_offset = {x = 0, y = 0}
 
 tile_w = 48
 tile_h = 48
@@ -45,19 +42,15 @@ function generate_map()
     brogue:create(callback, true)
 end
 
-function draw_map()
+function draw_map(camera)
     map_display_w = math.ceil(love.graphics.getWidth() / tile_w)
     map_display_h = math.ceil(love.graphics.getHeight() / tile_h)
-    startx = math.max(0, math.floor(map.offset.x / tile_w))
-    starty = math.max(0, math.floor(map.offset.y / tile_h))
-    map_display_w = math.min(map_display_w, map.width - startx - 1)
-    map_display_h = math.min(map_display_h, map.height - starty - 1)
-    for x = startx, startx + map_display_w do
-        for y = starty, starty + map_display_h do
+    for x = 0, map.width-1 do
+        for y = 0, map.height-1 do
             love.graphics.draw(
                 tile_images[map.grid[x][y]],
-                x * tile_w - map.offset.x,
-                y * tile_h - map.offset.y)
+                x * tile_w,
+                y * tile_h)
         end
     end
 end

@@ -1,3 +1,6 @@
 [submodule "rotLove"]
 	path = rotLove
 	url = git://github.com/paulofmandown/rotLove.git
+[submodule "hump"]
+	path = hump
+	url = https://github.com/vrld/hump
