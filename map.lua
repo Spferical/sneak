@@ -15,6 +15,8 @@ map = {
     width = 50,
     height = 50,
     grid = nil,
+    num_guards = 10,
+    guard_spawns = {},
 }
 
 tile_w = 48
@@ -39,6 +41,25 @@ function generate_map()
         end
     end
     brogue:create(callback, true)
+
+    spawn_section_height = map.height / map.num_guards
+    for g = 1, map.num_guards do
+        y = spawn_section_height * g
+        x = random:random(map.width - 1)
+        while map.grid[x][y] ~= tiles.floor do
+            y = y + 1
+            for i = 1, 10 do
+                x = random:random(map.width - 1)
+                if map.grid[x][y] == tiles.floor then
+                    break
+                end
+            end
+            if y >= map.height then
+                y = 1
+            end
+        end
+        table.insert(map.guard_spawns, {x = x * tile_w, y = y * tile_h})
+    end
 end
 
 function draw_map(camera)

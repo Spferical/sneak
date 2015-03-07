@@ -1,4 +1,5 @@
 require("map")
+require("guard")
 Camera = require "hump.camera"
 debug = true
 
@@ -12,21 +13,33 @@ player = {
     ymove = 0,
     speed = 400,
 }
+guards = {}
 
 random = love.math.newRandomGenerator()
 
 
 function love.load(arg)
     player.image = love.graphics.newImage("assets/player.png")
+    guard_image = love.graphics.newImage("assets/guard.png")
     generate_map()
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
     camera = Camera(player.x, player.y)
     camera:zoomTo(1/2)
+    spawn_guards()
 end
 
 function love.update(dt)
     handle_player_keys(dt)
+end
+
+function spawn_guards()
+    for i, pos in ipairs(map.guard_spawns) do
+        guard = Guard:new()
+        guard.x = pos.x
+        guard.y = pos.y
+        table.insert(guards, guard)
+    end
 end
 
 function handle_player_keys(dt)
@@ -91,10 +104,17 @@ function get_camera_edges()
     return x - w / 2, y - h / 2, x + w / 2, y + h / 2
 end
 
+function draw_guards()
+    for i, guard in ipairs(guards) do
+        love.graphics.draw(guard_image, guard.x, guard.y)
+    end
+end
+
 function love.draw()
     camera:attach()
     draw_map(camera)
     love.graphics.draw(player.image, player.x , player.y)
+    draw_guards()
     camera:detach()
     if debug then
         love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
