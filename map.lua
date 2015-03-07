@@ -42,10 +42,17 @@ function generate_map()
 end
 
 function draw_map(camera)
-    map_display_w = math.ceil(love.graphics.getWidth() / tile_w)
-    map_display_h = math.ceil(love.graphics.getHeight() / tile_h)
-    for x = 0, map.width-1 do
-        for y = 0, map.height-1 do
+    x1, y1, x2, y2 = get_camera_edges()
+    map_display_w = math.ceil((x2 - x1) / tile_w)
+    map_display_h = math.ceil((y2 - y1) / tile_h)
+    startx = math.floor(x1 / tile_w)
+    starty = math.floor(y1 / tile_h)
+    startx = math.max(0, startx)
+    starty = math.max(0, starty)
+    map_display_w = math.min(map_display_w, map.width - startx - 1)
+    map_display_h = math.min(map_display_h, map.height - starty - 1)
+    for x = startx, startx + map_display_w do
+        for y = starty, starty + map_display_h do
             love.graphics.draw(
                 tile_images[map.grid[x][y]],
                 x * tile_w,

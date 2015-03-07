@@ -73,7 +73,21 @@ function check_player_collision()
 end
 
 function love.resize(w, h)
-    camera:zoomTo(h / 480 / 2)
+    camera:zoomTo(get_scale())
+end
+
+function get_scale()
+    return love.graphics.getHeight() / 480 / 2
+end
+
+function get_camera_edges()
+    -- returns (x1, y1, x2, y2)
+    scale = get_scale()
+    x, y = camera:pos()
+    w, h = love.graphics.getDimensions()
+    w = w / scale
+    h = h / scale
+    return x - w / 2, y - h / 2, x + w / 2, y + h / 2
 end
 
 function love.draw()
