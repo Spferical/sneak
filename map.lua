@@ -27,7 +27,11 @@ function generate_map()
     for i = 0, map.width-1 do
         map.grid[i] = {}
         for j = 0, map.height-1 do
-            map.grid[i][j] = 1
+            if (i == 0 or j == 0 or i == map.width-1 or j == map.height-1) then
+                map.grid[i][j] = 2
+            else
+                map.grid[i][j] = 1
+            end
         end
     end
 end

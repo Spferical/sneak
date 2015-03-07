@@ -2,8 +2,8 @@ require("map")
 debug = true
 
 player = {
-    x = 20,
-    y = 20,
+    x = 100,
+    y = 100,
     image = nil,
     height = 32,
     width = 32,
