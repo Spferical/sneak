@@ -22,6 +22,7 @@ function love.load(arg)
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
     camera = Camera(player.x, player.y)
+    camera:zoomTo(1/2)
 end
 
 function love.update(dt)
@@ -72,7 +73,7 @@ function check_player_collision()
 end
 
 function love.resize(w, h)
-    camera:zoomTo(h / 1080)
+    camera:zoomTo(h / 480 / 2)
 end
 
 function love.draw()
