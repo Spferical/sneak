@@ -59,7 +59,7 @@ function check_player_collision()
     y1 = math.floor(player.y / tile_h)
     x2 = math.floor((player.x + player.width) / tile_w)
     y2 = math.floor((player.y + player.height) / tile_h)
-    return map_grid[x1][y1] == tiles.wall or map_grid[x2][y2] == tiles.wall
+    return map.grid[x1][y1] == tiles.wall or map.grid[x2][y2] == tiles.wall
 end
 
 function love.draw()

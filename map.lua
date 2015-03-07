@@ -8,22 +8,26 @@ tile_images = {
     love.graphics.newImage("assets/wall.png")
 }
 
+map = {
+    offset = {x = 0, y = 0},
+    width = 100,
+    height = 100,
+    grid = nil,
+}
+
 map_offset = {x = 0, y = 0}
 
-map_width = 100
-map_height = 100
 tile_w = 48
 tile_h = 48
-map_grid = nil
 
 
 function generate_map()
-    map_grid = {}
+    map.grid = {}
     -- fill the map with floor tiles
-    for i = 0, map_width-1 do
-        map_grid[i] = {}
-        for j = 0, map_height-1 do
-            map_grid[i][j] = 1
+    for i = 0, map.width-1 do
+        map.grid[i] = {}
+        for j = 0, map.height-1 do
+            map.grid[i][j] = 1
         end
     end
 end
@@ -34,9 +38,9 @@ function draw_map()
     for x=1, map_display_w do
         for y=1, map_display_h do
             love.graphics.draw(
-                tile_images[map_grid[x][y]],
-                x * tile_w + map_offset.x,
-                y * tile_h + map_offset.y)
+                tile_images[map.grid[x][y]],
+                x * tile_w + map.offset.x,
+                y * tile_h + map.offset.y)
         end
     end
 end
