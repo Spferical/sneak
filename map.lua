@@ -1,3 +1,6 @@
+ROT=require 'rotLove/rotLove/rotLove'
+
+
 tiles = {
     floor = 1,
     wall = 2,
@@ -35,6 +38,16 @@ function generate_map()
             end
         end
     end
+    brogue = ROT.Map.Brogue(map.width, map.height)
+    function callback(x, y, val)
+        print(x, y, val)
+        if val == 2 or val == 0 then
+            map.grid[x-1][y-1] = tiles.floor
+        else
+            map.grid[x-1][y-1] = tiles.wall
+        end
+    end
+    brogue:create(callback, false)
 end
 
 function draw_map()
