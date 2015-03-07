@@ -33,10 +33,10 @@ function generate_map()
 end
 
 function draw_map()
-    map_display_w = love.window.getWidth() / tile_w + 1
-    map_display_h = love.window.getHeight() / tile_h + 1
-    for x=1, map_display_w do
-        for y=1, map_display_h do
+    map_display_w = love.window.getWidth() / tile_w
+    map_display_h = love.window.getHeight() / tile_h
+    for x=0, map_display_w do
+        for y=0, map_display_h do
             love.graphics.draw(
                 tile_images[map.grid[x][y]],
                 x * tile_w + map.offset.x,
