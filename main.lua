@@ -26,7 +26,7 @@ function love.load(arg)
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
     camera = Camera(player.x, player.y)
-    camera:zoomTo(1/2)
+    camera:zoomTo(1/4)
     spawn_guards()
 end
 
@@ -113,7 +113,7 @@ function love.resize(w, h)
 end
 
 function get_scale()
-    return love.graphics.getHeight() / 480 / 2
+    return love.graphics.getHeight() / 480 / 4
 end
 
 function get_camera_edges()
