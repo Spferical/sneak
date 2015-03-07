@@ -1,6 +1,6 @@
 tiles = {
-    floor = 0,
-    wall = 1,
+    floor = 1,
+    wall = 2,
 }
 
 tile_images = {
@@ -20,9 +20,9 @@ map_grid = nil
 function generate_map()
     map_grid = {}
     -- fill the map with floor tiles
-    for i = 1, map_width do
+    for i = 0, map_width-1 do
         map_grid[i] = {}
-        for j = 1, map_height do
+        for j = 0, map_height-1 do
             map_grid[i][j] = 1
         end
     end
@@ -35,8 +35,8 @@ function draw_map()
         for y=1, map_display_h do
             love.graphics.draw(
                 tile_images[map_grid[x][y]],
-                (x-1) * tile_w + map_offset.x,
-                (y-1) * tile_h + map_offset.y)
+                x * tile_w + map_offset.x,
+                y * tile_h + map_offset.y)
         end
     end
 end
