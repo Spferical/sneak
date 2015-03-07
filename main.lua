@@ -52,6 +52,15 @@ function handle_player_keys(dt)
     if check_player_collision() then
         player.y = old_y
     end
+
+    -- update map offset
+    map.offset.x = player.x - love.window.getWidth() / 2
+    map.offset.x = math.max(map.offset.x, 0)
+    map.offset.x = math.min(map.offset.x, map.height * tile_h - love.window.getWidth() / 2)
+    map.offset.y = player.y - love.window.getHeight() / 2
+    map.offset.y = math.max(map.offset.y, 0)
+    map.offset.y = math.min(map.offset.y, map.width * tile_w - love.window.getHeight() / 2)
+    print(map.offset.x, map.offset.y)
 end
 
 function check_player_collision()
@@ -64,5 +73,6 @@ end
 
 function love.draw()
     draw_map()
-    love.graphics.draw(player.image, player.x, player.y)
+    love.graphics.draw(player.image,
+        player.x - map.offset.x, player.y - map.offset.y)
 end
