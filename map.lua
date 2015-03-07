@@ -13,8 +13,8 @@ tile_images = {
 
 map = {
     offset = {x = 0, y = 0},
-    width = 100,
-    height = 100,
+    width = 30,
+    height = 30,
     grid = nil,
 }
 
