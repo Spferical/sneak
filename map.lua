@@ -48,8 +48,8 @@ end
 function draw_map()
     map_display_w = math.ceil(love.window.getWidth() / tile_w)
     map_display_h = math.ceil(love.window.getHeight() / tile_h)
-    startx = math.floor(map.offset.x / tile_w)
-    starty = math.floor(map.offset.y / tile_h)
+    startx = math.max(0, math.floor(map.offset.x / tile_w))
+    starty = math.max(0, math.floor(map.offset.y / tile_h))
     map_display_w = math.min(map_display_w, map.width - startx - 1)
     map_display_h = math.min(map_display_h, map.height - starty - 1)
     for x = startx, startx + map_display_w do
