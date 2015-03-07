@@ -10,7 +10,7 @@ player = {
     width = 32,
     xmove = 0,
     ymove = 0,
-    speed = 100,
+    speed = 400,
 }
 
 random = love.math.newRandomGenerator()
