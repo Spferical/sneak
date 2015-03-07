@@ -7,6 +7,9 @@ player = {
     image = nil,
     height = 32,
     width = 32,
+    xmove = 0,
+    ymove = 0,
+    speed = 100,
 }
 
 random = love.math.newRandomGenerator()
@@ -17,30 +20,37 @@ function love.load(arg)
 end
 
 function love.update(dt)
+    handle_player_keys(dt)
 end
 
-function love.keypressed(key, unicode)
-    xmove = 0
-    ymove = 0
-    if key == 'up' then
-        ymove = ymove - 1
+function handle_player_keys(dt)
+    player.ymove = 0
+    player.xmove = 0
+
+    -- find out how the player wants to move
+    if love.keyboard.isDown("up") then
+        player.ymove = player.ymove - 1
     end
-    if key == 'down' then
-        ymove = ymove + 1
+    if love.keyboard.isDown("down") then
+        player.ymove = player.ymove + 1
     end
-    if key == 'left' then
-        xmove = xmove - 1
+    if love.keyboard.isDown("left") then
+        player.xmove = player.xmove - 1
     end
-    if key == 'right' then
-        xmove = xmove + 1
+    if love.keyboard.isDown("right") then
+        player.xmove = player.xmove + 1
     end
-    player.x = player.x + xmove
+
+    -- do the movements, and undo them if the player collides with something
+    old_x = player.x
+    old_y = player.y
+    player.x = player.x + player.xmove * player.speed * dt
     if check_player_collision() then
-        player.x = player.x - xmove
+        player.x = old_x
     end
-    player.y = player.y + ymove
+    player.y = player.y + player.ymove * player.speed * dt
     if check_player_collision() then
-        player.y = player.y - ymove
+        player.y = old_y
     end
 end
 
