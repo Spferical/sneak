@@ -28,6 +28,7 @@ function generate_map()
         map.grid[i] = {}
         for j = 0, map.height-1 do
             if (i == 0 or j == 0 or i == map.width-1 or j == map.height-1) then
+                -- wall tiles on outer edge
                 map.grid[i][j] = 2
             else
                 map.grid[i][j] = 1
