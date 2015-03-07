@@ -45,8 +45,10 @@ function get_path(from_x, from_y, to_x, to_y)
 end
 
 function love.update(dt)
-    handle_player_keys(dt)
-    update_guards(dt)
+    if handle_player_keys(dt) then
+        update_guards(dt)
+    end
+    update_camera(dt)
 end
 
 function update_guards(dt)
@@ -64,7 +66,15 @@ function spawn_guards()
     end
 end
 
+function update_camera(dt)
+    local dx, dy = player.x - camera.x, player.y - camera.y
+    camera:move(dx/20, dy/20)
+end
+
+
 function handle_player_keys(dt)
+    -- returns whether or not the player moved
+
     player.ymove = 0
     player.xmove = 0
 
@@ -82,21 +92,23 @@ function handle_player_keys(dt)
         player.xmove = player.xmove + 1
     end
 
-    -- do the movements, and undo them if the player collides with something
-    old_x = player.x
-    old_y = player.y
-    player.x = player.x + player.xmove * player.speed * dt
-    if check_player_collision() then
-        player.x = old_x
-    end
-    player.y = player.y + player.ymove * player.speed * dt
-    if check_player_collision() then
-        player.y = old_y
-    end
+    if player.xmove ~= 0 or player.ymove ~= 0 then
+        -- do the movements, and undo them if the player collides with something
+        old_x = player.x
+        old_y = player.y
+        player.x = player.x + player.xmove * player.speed * dt
+        if check_player_collision() then
+            player.x = old_x
+        end
+        player.y = player.y + player.ymove * player.speed * dt
+        if check_player_collision() then
+            player.y = old_y
+        end
 
-    -- update camera
-    local dx, dy = player.x - camera.x, player.y - camera.y
-    camera:move(dx/20, dy/20)
+        return true
+    else
+        return false
+    end
 end
 
 function check_player_collision()
