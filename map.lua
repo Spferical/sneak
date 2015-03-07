@@ -66,6 +66,3 @@ function draw_map()
         end
     end
 end
-
-
-generate_map()

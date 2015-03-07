@@ -17,6 +17,9 @@ random = love.math.newRandomGenerator()
 
 function love.load(arg)
     player.image = love.graphics.newImage("assets/player.png")
+    generate_map()
+    player.x = map.width * tile_w / 2
+    player.y = (map.height - 2) * tile_h
 end
 
 function love.update(dt)
