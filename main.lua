@@ -81,4 +81,7 @@ function love.draw()
     draw_map(camera)
     love.graphics.draw(player.image, player.x , player.y)
     camera:detach()
+    if debug then
+        love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+    end
 end
