@@ -47,7 +47,7 @@ function generate_map()
             map.grid[x-1][y-1] = tiles.wall
         end
     end
-    brogue:create(callback, false)
+    brogue:create(callback, true)
 end
 
 function draw_map()
