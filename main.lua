@@ -1,5 +1,6 @@
 require("map")
 require("guard")
+ROT = require("rotLove/rotLove/rotLove")
 Camera = require "hump.camera"
 debug = true
 
@@ -29,8 +30,29 @@ function love.load(arg)
     spawn_guards()
 end
 
+function path_callback(x, y)
+    return map.grid[x][y] == tiles.floor
+end
+
+function get_path(from_x, from_y, to_x, to_y)
+    path = {}
+    astar = ROT.Path.AStar(to_x, to_y, path_callback)
+    function callback(x, y)
+        table.insert(path, {x = x, y = y})
+    end
+    astar:compute(from_x, from_y, callback)
+    return path
+end
+
 function love.update(dt)
     handle_player_keys(dt)
+    update_guards(dt)
+end
+
+function update_guards(dt)
+    for i, guard in ipairs(guards) do
+        guard:update(dt)
+    end
 end
 
 function spawn_guards()
