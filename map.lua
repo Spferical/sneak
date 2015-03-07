@@ -32,7 +32,6 @@ function generate_map()
     end
     brogue = ROT.Map.Brogue(map.width, map.height)
     function callback(x, y, val)
-        print(x, y, val)
         if val == 2 or val == 0 then
             map.grid[x-1][y-1] = tiles.floor
         else
