@@ -1,0 +1,3 @@
+[submodule "rotLove"]
+	path = rotLove
+	url = git://github.com/paulofmandown/rotLove.git
