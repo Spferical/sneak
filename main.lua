@@ -147,6 +147,13 @@ end
 function love.draw()
     camera:attach()
     draw_map(camera)
+    love.graphics.setColor(100, 100, 100, 100)
+    for i, guard in ipairs(guards) do
+        for j, t in ipairs(get_fov(guard.x, guard.y, 500)) do
+            love.graphics.polygon('fill', t)
+        end
+    end
+    love.graphics.setColor(255, 255, 255, 255)
     love.graphics.draw(player.image, player.x , player.y)
     draw_guards()
     camera:detach()
