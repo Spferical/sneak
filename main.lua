@@ -147,8 +147,12 @@ end
 function love.draw()
     camera:attach()
     draw_map(camera)
-    love.graphics.setColor(255, 255, 0, 20)
     for i, guard in ipairs(guards) do
+        if guard:player_is_in_sight() then
+            love.graphics.setColor(255, 0, 0, 100)
+        else
+            love.graphics.setColor(255, 255, 0, 100)
+        end
         for j, t in ipairs(get_fov(guard.x, guard.y, guard.view_dist)) do
             love.graphics.polygon('fill', t)
         end
