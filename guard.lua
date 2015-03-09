@@ -14,6 +14,10 @@ function Guard:new(o)
 end
 
 function Guard:update(dt)
+    if self:player_is_in_sight() then
+        self:chase_player()
+    end
+
     if self.path[1] ~= nil then
         target_x, target_y = self.path[1].x, self.path[1].y
         dx = target_x - self.x
@@ -37,21 +41,41 @@ function Guard:update(dt)
     end
 end
 
+function Guard:player_is_in_sight()
+    sx, sy = self.x, self.y
+    px, py = player.x, player.y
+    return line_intersects_wall(sx, sy, px, py) == px, py
+end
+
+function Guard:chase_player()
+    player_map_x = math.floor(player.x / tile_w)
+    player_map_y = math.floor(player.y / tile_h)
+    self.path = self:get_path_to(player_map_x, player_map_y)
+end
+
 function Guard:begin_wander()
     -- get a path with map coordinates
-    self_map_x = math.floor(self.x / tile_w)
-    self_map_y = math.floor(self.y / tile_h)
     x = random:random(map.width - 1)
     y = random:random(map.height - 1)
     while map.grid[x][y] ~= tiles.floor do
         x = random:random(map.width - 1)
         y = random:random(map.height - 1)
     end
-    self.path = get_path(self_map_x, self_map_y, x, y)
+    self.path = self:get_path_to(x, y)
+end
+
+function Guard:get_path_to(x, y)
+    self_map_x = math.floor(self.x / tile_w)
+    self_map_y = math.floor(self.y / tile_h)
+    path = get_path(self_map_x, self_map_y, x, y)
+
+    -- we don't need to walk to the square we're already in
+    table.remove(path, 1)
 
     -- convert path to world coordinates
-    for i, point in ipairs(self.path) do
+    for i, point in ipairs(path) do
         point.x = point.x * tile_w
         point.y = point.y * tile_h
     end
+    return path
 end
