@@ -40,7 +40,7 @@ function start_level()
         player.y = player.y - tile_h
     end
     camera = Camera(player.x, player.y)
-    camera:zoomTo(1/4)
+    camera:zoomTo(get_scale())
     spawn_guards()
 end
 
@@ -180,7 +180,7 @@ function check_player_collision()
 end
 
 function love.resize(w, h)
-    if gamestate == 'playing' then
+    if gamestate == 'playing' or gamestate == 'gameover' then
         camera:zoomTo(get_scale())
     end
 end
