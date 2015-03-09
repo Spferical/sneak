@@ -81,11 +81,11 @@ end
 function Guard:player_is_in_sight()
     -- return false if player is too far away
     px, py = get_player_center()
-    if distance(self.x, self.y, px, py) > self.view_dist then
+    local sx, sy = self:get_center()
+    if distance(sx, sy, px, py) > self.view_dist then
         return false
     end
     -- else, check if our sight is unbroken by walls
-    sx, sy = self.x, self.y
     return line_intersects_wall(sx, sy, px, py) == px, py
 end
 
