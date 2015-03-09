@@ -4,19 +4,6 @@ ROT = require("rotLove/rotLove/rotLove")
 Camera = require "hump.camera"
 debug = true
 
-player = {
-    x = 100,
-    y = 100,
-    image = nil,
-    height = 32,
-    width = 32,
-    xmove = 0,
-    ymove = 0,
-    speed = 400,
-}
-guards = {}
-bullets = {}
-
 random = love.math.newRandomGenerator()
 
 function get_player_center()
@@ -24,10 +11,26 @@ function get_player_center()
 end
 
 function love.load(arg)
-    gamestate = 'playing'
-    player.image = love.graphics.newImage("assets/player.png")
+    gamestate = 'menu'
+    player_image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
     bullet_image = love.graphics.newImage("assets/bullet.png")
+end
+
+function start_level()
+    player = {
+        x = 100,
+        y = 100,
+        image = nil,
+        height = 32,
+        width = 32,
+        xmove = 0,
+        ymove = 0,
+        speed = 400,
+    }
+
+    guards = {}
+    bullets = {}
     generate_map()
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
@@ -54,11 +57,14 @@ function get_path(from_x, from_y, to_x, to_y)
 end
 
 function love.update(dt)
-    if gamestate == 'playing' and handle_player_keys(dt) then
-        update_guards(dt)
-        update_bullets(dt)
+    action = handle_player_keys(dt)
+    if gamestate == 'playing' then
+        update_camera(dt)
+        if action then
+            update_guards(dt)
+            update_bullets(dt)
+        end
     end
-    update_camera(dt)
 end
 
 function update_guards(dt)
@@ -95,42 +101,53 @@ function update_camera(dt)
 end
 
 
+function love.keypressed(key, code)
+    if gamestate == 'menu' then
+        if key == 'return' then
+            start_level()
+            gamestate = 'playing'
+        end
+    end
+end
+
+
 function handle_player_keys(dt)
-    -- returns whether or not the player moved
+    -- returns action, if any taken
+    if gamestate == 'playing' then
+        player.ymove = 0
+        player.xmove = 0
 
-    player.ymove = 0
-    player.xmove = 0
-
-    -- find out how the player wants to move
-    if love.keyboard.isDown("up") then
-        player.ymove = player.ymove - 1
-    end
-    if love.keyboard.isDown("down") then
-        player.ymove = player.ymove + 1
-    end
-    if love.keyboard.isDown("left") then
-        player.xmove = player.xmove - 1
-    end
-    if love.keyboard.isDown("right") then
-        player.xmove = player.xmove + 1
-    end
-
-    if player.xmove ~= 0 or player.ymove ~= 0 then
-        -- do the movements, and undo them if the player collides with something
-        old_x = player.x
-        old_y = player.y
-        player.x = player.x + player.xmove * player.speed * dt
-        if check_player_collision() then
-            player.x = old_x
+        -- find out how the player wants to move
+        if love.keyboard.isDown("up") then
+            player.ymove = player.ymove - 1
         end
-        player.y = player.y + player.ymove * player.speed * dt
-        if check_player_collision() then
-            player.y = old_y
+        if love.keyboard.isDown("down") then
+            player.ymove = player.ymove + 1
+        end
+        if love.keyboard.isDown("left") then
+            player.xmove = player.xmove - 1
+        end
+        if love.keyboard.isDown("right") then
+            player.xmove = player.xmove + 1
         end
 
-        return true
-    else
-        return false
+        if player.xmove ~= 0 or player.ymove ~= 0 then
+            -- do the movements, and undo them if the player bumpts into a wall
+            old_x = player.x
+            old_y = player.y
+            player.x = player.x + player.xmove * player.speed * dt
+            if check_player_collision() then
+                player.x = old_x
+            end
+            player.y = player.y + player.ymove * player.speed * dt
+            if check_player_collision() then
+                player.y = old_y
+            end
+
+            return true
+        else
+            return false
+        end
     end
 end
 
@@ -144,7 +161,9 @@ function check_player_collision()
 end
 
 function love.resize(w, h)
-    camera:zoomTo(get_scale())
+    if gamestate == 'playing' then
+        camera:zoomTo(get_scale())
+    end
 end
 
 function get_scale()
@@ -174,24 +193,29 @@ function draw_bullets()
 end
 
 function love.draw()
-    camera:attach()
-    draw_map(camera)
-    for i, guard in ipairs(guards) do
-        if guard:player_is_in_sight() then
-            love.graphics.setColor(255, 0, 0, 100)
-        else
-            love.graphics.setColor(255, 255, 0, 100)
+    if gamestate == 'menu' then
+        love.graphics.printf("Sneak", 25, 25, love.graphics.getWidth() - 50, "center")
+        love.graphics.printf("Press enter to start", 25, love.graphics.getHeight() - 50, love.graphics.getWidth() - 50, "center")
+    elseif gamestate == 'playing' or gamestate == 'gameover' then
+        camera:attach()
+        draw_map(camera)
+        for i, guard in ipairs(guards) do
+            if guard:player_is_in_sight() then
+                love.graphics.setColor(255, 0, 0, 100)
+            else
+                love.graphics.setColor(255, 255, 0, 100)
+            end
+            for j, t in ipairs(get_fov(guard.x, guard.y, guard.view_dist)) do
+                love.graphics.polygon('fill', t)
+            end
         end
-        for j, t in ipairs(get_fov(guard.x, guard.y, guard.view_dist)) do
-            love.graphics.polygon('fill', t)
+        love.graphics.setColor(255, 255, 255, 255)
+        love.graphics.draw(player_image, player.x , player.y)
+        draw_guards()
+        draw_bullets()
+        camera:detach()
+        if debug then
+            love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
         end
-    end
-    love.graphics.setColor(255, 255, 255, 255)
-    love.graphics.draw(player.image, player.x , player.y)
-    draw_guards()
-    draw_bullets()
-    camera:detach()
-    if debug then
-        love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
     end
 end
