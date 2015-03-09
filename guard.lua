@@ -70,7 +70,9 @@ end
 
 function Guard:player_is_in_sight()
     -- return false if player is too far away
-    if distance(self.x, self.y, player.x, player.y) > self.view_dist then
+    if distance(self.x, self.y,
+            player.x + player.width / 2, player.y + player.height / 2)
+            > self.view_dist then
         return false
     end
     -- else, check if our sight is unbroken by walls
