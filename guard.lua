@@ -25,7 +25,8 @@ function Guard:update(dt)
         self.state = 'chase'
         self:chase_player()
         if self.time_since_fire > self.fire_cooldown then
-            self:fire_at(player.x, player.y)
+            px, py = get_player_center()
+            self:fire_at(px, py)
             self.time_since_fire = 0
         end
     elseif self.path[1] ~= nil then
@@ -60,8 +61,8 @@ function Guard:fire_at(x, y)
     local bullet = Bullet:new()
     bullet.x = self.x
     bullet.y = self.y
-    local dx = player.x - self.x
-    local dy = player.y - self.y
+    local dx = x - self.x
+    local dy = y - self.y
     local mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
     bullet.xvel = dx / mag * self.bullet_speed
     bullet.yvel = dy / mag * self.bullet_speed
@@ -70,14 +71,12 @@ end
 
 function Guard:player_is_in_sight()
     -- return false if player is too far away
-    if distance(self.x, self.y,
-            player.x + player.width / 2, player.y + player.height / 2)
-            > self.view_dist then
+    px, py = get_player_center()
+    if distance(self.x, self.y, px, py) > self.view_dist then
         return false
     end
     -- else, check if our sight is unbroken by walls
     sx, sy = self.x, self.y
-    px, py = player.x, player.y
     return line_intersects_wall(sx, sy, px, py) == px, py
 end
 

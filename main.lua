@@ -19,6 +19,9 @@ bullets = {}
 
 random = love.math.newRandomGenerator()
 
+function get_player_center()
+    return player.x + player.width / 2, player.y + player.height / 2
+end
 
 function love.load(arg)
     gamestate = 'playing'
