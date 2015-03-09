@@ -133,6 +133,7 @@ end
 
 function generate_map()
     map.grid = {}
+    map.guard_spawns = {}
     -- fill the map with floor tiles
     for i = 0, map.width-1 do
         map.grid[i] = {}
