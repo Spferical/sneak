@@ -12,10 +12,10 @@ tile_images = {
 }
 
 map = {
-    width = 50,
-    height = 50,
+    width = 40,
+    height = 40,
     grid = nil,
-    num_guards = 10,
+    num_guards = 5,
     guard_spawns = {},
 }
 
