@@ -108,6 +108,12 @@ function pixel_to_map_coords(x, y)
     return math.floor(x / tile_w), math.floor(y / tile_h)
 end
 
+function point_is_in_wall(x, y)
+    local x = math.floor(x / tile_w)
+    local y = math.floor(y / tile_h)
+    return map.grid[x][y] == tiles.wall
+end
+
 function get_fov(x, y, dist)
     -- algorithm described at http://www.redblobgames.com/articles/visibility/
     triangles = {}

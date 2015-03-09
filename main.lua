@@ -28,6 +28,9 @@ function love.load(arg)
     generate_map()
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
+    while point_is_in_wall(player.x, player.y) do
+        player.y = player.y - tile_h
+    end
     camera = Camera(player.x, player.y)
     camera:zoomTo(1/4)
     spawn_guards()
