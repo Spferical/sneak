@@ -2,6 +2,8 @@ require("bullet")
 Guard = {
     x = 0,
     y = 0,
+    width = 32,
+    height = 32,
     target = nil,
     path = {},
     speed = 200,
@@ -17,6 +19,10 @@ function Guard:new(o)
     setmetatable(o, self)
     self.__index = self
     return o
+end
+
+function Guard:get_center()
+    return self.x + self.width / 2, self.y + self.height / 2
 end
 
 function Guard:update(dt)

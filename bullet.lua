@@ -17,12 +17,6 @@ function Bullet:update(dt)
     self.y = self.y + self.yvel * dt
 end
 
-function Bullet:collides_with_player()
-    -- whether we are inside the player's enclosing rectangle
-    return player.x < self.x and self.x < player.x + player.width and
-        player.y < self.y and self.y < player.y + player.height
-end
-
 function Bullet:collides_with_wall()
     local x = math.floor(self.x / tile_w)
     local y = math.floor(self.y / tile_h)

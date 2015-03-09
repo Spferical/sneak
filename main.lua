@@ -44,6 +44,12 @@ function start_level()
     spawn_guards()
 end
 
+function point_in_player(x, y)
+    -- whether we are inside the player's enclosing rectangle
+    return player.x < x and x < player.x + player.width and
+        player.y < y and y < player.y + player.height
+end
+
 function path_callback(x, y)
     return map.grid[x][y] == tiles.floor
 end
@@ -70,8 +76,15 @@ function love.update(dt)
 end
 
 function update_guards(dt)
-    for i, guard in ipairs(guards) do
-        guard:update(dt)
+    -- iterate back-to-front to avoid skipping
+    for i = #guards, 1, -1 do
+        local guard = guards[i]
+        local x, y = guard:get_center()
+        if point_in_player(x, y) then
+            table.remove(guards, i)
+        else
+            guard:update(dt)
+        end
     end
 end
 
@@ -80,7 +93,7 @@ function update_bullets(dt)
     for i = #bullets, 1, -1 do
         local bullet = bullets[i]
         bullet:update(dt)
-        if bullet:collides_with_player() then
+        if point_in_player(bullet.x, bullet.y) then
             gamestate = 'gameover'
         elseif bullet:collides_with_wall() then
             table.remove(bullets, i)
