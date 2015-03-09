@@ -3,7 +3,8 @@ Guard = {
     y = 0,
     target = nil,
     path = {},
-    speed = 200
+    speed = 200,
+    view_dist = 500,
 }
 
 function Guard:new(o)
@@ -41,7 +42,16 @@ function Guard:update(dt)
     end
 end
 
+function distance(x1, y1, x2, y2)
+    return math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
+end
+
 function Guard:player_is_in_sight()
+    -- return false if player is too far away
+    if distance(self.x, self.y, player.x, player.y) > self.view_dist then
+        return false
+    end
+    -- else, check if our sight is unbroken by walls
     sx, sy = self.x, self.y
     px, py = player.x, player.y
     return line_intersects_wall(sx, sy, px, py) == px, py

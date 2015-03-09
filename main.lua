@@ -149,7 +149,7 @@ function love.draw()
     draw_map(camera)
     love.graphics.setColor(255, 255, 0, 20)
     for i, guard in ipairs(guards) do
-        for j, t in ipairs(get_fov(guard.x, guard.y, 500)) do
+        for j, t in ipairs(get_fov(guard.x, guard.y, guard.view_dist)) do
             love.graphics.polygon('fill', t)
         end
     end
