@@ -63,6 +63,9 @@ function Guard:fire_at(x, y)
     bullet.y = self.y
     local dx = x - self.x
     local dy = y - self.y
+    -- jitter
+    dx = dx + math.random(-20, 20)
+    dy = dy + math.random(-20, 20)
     local mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
     bullet.xvel = dx / mag * self.bullet_speed
     bullet.yvel = dy / mag * self.bullet_speed
