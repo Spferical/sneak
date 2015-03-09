@@ -20,5 +20,6 @@ end
 function Bullet:collides_with_wall()
     local x = math.floor(self.x / tile_w)
     local y = math.floor(self.y / tile_h)
-    return map.grid[x][y] == tiles.wall
+    return x < 0 or x > map.width or y < 0 or y > map.height or
+        map.grid[x][y] == tiles.wall
 end
