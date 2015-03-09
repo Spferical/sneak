@@ -134,7 +134,8 @@ function generate_map()
             map.grid[i][j] = 1
         end
     end
-    brogue = ROT.Map.Brogue(map.width, map.height)
+    mapgen = ROT.Map.Digger(map.width, map.height,
+        {dugPercentage = 0.75})
     function callback(x, y, val)
         if val == 2 or val == 0 then
             map.grid[x-1][y-1] = tiles.floor
@@ -142,7 +143,7 @@ function generate_map()
             map.grid[x-1][y-1] = tiles.wall
         end
     end
-    brogue:create(callback, true)
+    mapgen:create(callback)
 
     spawn_section_height = map.height / map.num_guards
     for g = 1, map.num_guards do
