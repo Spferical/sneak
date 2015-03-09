@@ -5,6 +5,7 @@ Guard = {
     path = {},
     speed = 200,
     view_dist = 500,
+    state = 'wander',
 }
 
 function Guard:new(o)
@@ -16,10 +17,9 @@ end
 
 function Guard:update(dt)
     if self:player_is_in_sight() then
+        self.state = 'chase'
         self:chase_player()
-    end
-
-    if self.path[1] ~= nil then
+    elseif self.path[1] ~= nil then
         target_x, target_y = self.path[1].x, self.path[1].y
         dx = target_x - self.x
         dy = target_y - self.y
@@ -39,6 +39,7 @@ function Guard:update(dt)
         end
     else
         self:begin_wander()
+        self.state = 'wander'
     end
 end
 
