@@ -15,13 +15,16 @@ player = {
     speed = 400,
 }
 guards = {}
+bullets = {}
 
 random = love.math.newRandomGenerator()
 
 
 function love.load(arg)
+    gamestate = 'playing'
     player.image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
+    bullet_image = love.graphics.newImage("assets/bullet.png")
     generate_map()
     player.x = map.width * tile_w / 2
     player.y = (map.height - 2) * tile_h
@@ -45,8 +48,9 @@ function get_path(from_x, from_y, to_x, to_y)
 end
 
 function love.update(dt)
-    if handle_player_keys(dt) then
+    if gamestate == 'playing' and handle_player_keys(dt) then
         update_guards(dt)
+        update_bullets(dt)
     end
     update_camera(dt)
 end
@@ -54,6 +58,19 @@ end
 function update_guards(dt)
     for i, guard in ipairs(guards) do
         guard:update(dt)
+    end
+end
+
+function update_bullets(dt)
+    -- iterate back-to-front to avoid skipping
+    for i = #bullets, 1, -1 do
+        local bullet = bullets[i]
+        bullet:update(dt)
+        if bullet:collides_with_player() then
+            gamestate = 'gameover'
+        elseif bullet:collides_with_wall() then
+            table.remove(bullets, i)
+        end
     end
 end
 
@@ -144,6 +161,12 @@ function draw_guards()
     end
 end
 
+function draw_bullets()
+    for i, bullet in ipairs(bullets) do
+        love.graphics.draw(bullet_image, bullet.x, bullet.y)
+    end
+end
+
 function love.draw()
     camera:attach()
     draw_map(camera)
@@ -160,6 +183,7 @@ function love.draw()
     love.graphics.setColor(255, 255, 255, 255)
     love.graphics.draw(player.image, player.x , player.y)
     draw_guards()
+    draw_bullets()
     camera:detach()
     if debug then
         love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
