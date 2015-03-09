@@ -11,6 +11,8 @@ function get_player_center()
 end
 
 function love.load(arg)
+    title_font = love.graphics.newFont("assets/kenpixel.ttf", 70)
+    main_font = love.graphics.newFont("assets/kenpixel.ttf", 20)
     gamestate = 'menu'
     player_image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
@@ -194,7 +196,9 @@ end
 
 function love.draw()
     if gamestate == 'menu' then
+        love.graphics.setFont(title_font)
         love.graphics.printf("Sneak", 25, 25, love.graphics.getWidth() - 50, "center")
+        love.graphics.setFont(main_font)
         love.graphics.printf("Press enter to start", 25, love.graphics.getHeight() - 50, love.graphics.getWidth() - 50, "center")
     elseif gamestate == 'playing' or gamestate == 'gameover' then
         camera:attach()
@@ -215,6 +219,7 @@ function love.draw()
         draw_bullets()
         camera:detach()
         if debug then
+            love.graphics.setFont(main_font)
             love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
         end
     end
