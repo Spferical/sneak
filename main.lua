@@ -109,6 +109,10 @@ function love.keypressed(key, code)
             start_level()
             gamestate = 'playing'
         end
+    elseif gamestate == 'gameover' then
+        if key == 'return' then
+            gamestate = 'menu'
+        end
     end
 end
 
@@ -221,6 +225,10 @@ function love.draw()
         if debug then
             love.graphics.setFont(main_font)
             love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+        end
+        if gamestate == 'gameover' then
+            love.graphics.printf("YOU DIED!\n Press enter to return to the main menu.",
+                50, 50, love.graphics.getWidth() - 50, "center")
         end
     end
 end
