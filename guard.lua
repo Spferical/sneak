@@ -65,10 +65,9 @@ end
 
 function Guard:fire_at(x, y)
     local bullet = Bullet:new()
-    bullet.x = self.x
-    bullet.y = self.y
-    local dx = x - self.x
-    local dy = y - self.y
+    bullet.x, bullet.y = self:get_center()
+    local dx = x - bullet.x
+    local dy = y - bullet.y
     -- jitter
     dx = dx + math.random(-20, 20)
     dy = dy + math.random(-20, 20)
