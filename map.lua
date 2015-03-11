@@ -39,29 +39,30 @@ function line_intersects_wall(x1, y1, x2, y2)
             local right = mx + tile_w + 1
             local top = my - 1
             local bottom = my + tile_h + 1
-            if x1 <= mx then
-                local x, y = findIntersect(x1, y1, x2, y2, mx, my, mx, my + tile_h, true, true)
-                if x ~= false then
+            local px, py = p.x * tile_w, p.y * tile_h
+            if x1 <= px then
+                local x, y = findIntersect(x1, y1, px, py, left, top, left, bottom, true, true)
+                if x ~= 0 then
                     return x, y
                 end
-            elseif x1 >= mx then
-                local x, y = findIntersect(x1, y1, x2, y2, mx + tile_w, my, mx + tile_w, my + tile_h, true, true)
-                if x ~= false then
-                    return x, y
-                end
-            end
-            if y1 <= my then
-                local x, y = findIntersect(x1, y1, x2, y2, mx, my, mx + tile_w, my, true, true)
-                if x ~= false then
-                    return x, y
-                end
-            elseif y1 >= my then
-                local x, y = findIntersect(x1, y1, x2, y2, mx, my + tile_h, mx + tile_w, my + tile_h, true, true)
-                if x ~= false then
+            else
+                local x, y = findIntersect(x1, y1, px, py, right, top, right, bottom, true, true)
+                if x ~= 0 then
                     return x, y
                 end
             end
-            print('ugh', x1, y1, x2, y2, map_x, map_y, x, y)
+            if y1 <= py then
+                local x, y = findIntersect(x1, y1, px, py, left, top, right, top, true, true)
+                if x ~= 0 then
+                    return x, y
+                end
+            else
+                local x, y = findIntersect(x1, y1, px, py, left, bottom, right, bottom, true, true)
+                if x ~= 0 then
+                    return x, y
+                end
+            end
+            print('uh')
         end
     end
     return x2, y2
@@ -132,23 +133,36 @@ function grid_line_intersection(x1, y1, x2, y2)
     return points
 end
 
--- via https://love2d.org/wiki/General_math
--- Checks if two lines intersect (or line segments if seg is true)
--- Lines are given as four numbers (two coordinates)
-function findIntersect(l1p1x,l1p1y, l1p2x,l1p2y, l2p1x,l2p1y, l2p2x,l2p2y, seg1, seg2)
-    local a1,b1,a2,b2 = l1p2y-l1p1y, l1p1x-l1p2x, l2p2y-l2p1y, l2p1x-l2p2x
-    local c1,c2 = a1*l1p1x+b1*l1p1y, a2*l2p1x+b2*l2p1y
-    local det,x,y = a1*b2 - a2*b1
-    if det==0 then return false, "The lines are parallel." end
-    x,y = (b2*c1-b1*c2)/det, (a1*c2-a2*c1)/det
-    if seg1 or seg2 then
-        local min,max = math.min, math.max
-        if seg1 and not (min(l1p1x,l1p2x) <= x and x <= max(l1p1x,l1p2x) and min(l1p1y,l1p2y) <= y and y <= max(l1p1y,l1p2y)) or
-           seg2 and not (min(l2p1x,l2p2x) <= x and x <= max(l2p1x,l2p2x) and min(l2p1y,l2p2y) <= y and y <= max(l2p1y,l2p2y)) then
-            return false, "The lines don't intersect."
-        end
+-- from https://love2d.org/wiki/General_math
+-- Returns 1 if number is positive, -1 if it's negative, or 0 if it's 0.
+function sign(n) return n>0 and 1 or n<0 and -1 or 0 end
+
+-- from https://love2d.org/wiki/General_math
+function checkIntersect(l1p1, l1p2, l2p1, l2p2)
+    local function checkDir(pt1, pt2, pt3) return sign(((pt2.x-pt1.x)*(pt3.y-pt1.y)) - ((pt3.x-pt1.x)*(pt2.y-pt1.y))) end
+    return (checkDir(l1p1,l1p2,l2p1) ~= checkDir(l1p1,l1p2,l2p2)) and (checkDir(l2p1,l2p2,l1p1) ~= checkDir(l2p1,l2p2,l1p2))
+end
+
+-- from https://love2d.org/wiki/PointWithinShape
+function findIntersect(g1,h1,g2,h2,i1,j1,i2,j2 )
+    local xk = 0
+    local yk = 0
+
+    if checkIntersect({x=g1, y=h1}, {x=g2, y=h2}, {x=i1, y=j1}, {x=i2, y=j2}) then
+        local a = h2-h1
+        local b = (g2-g1)
+        local v = ((h2-h1)*g1) - ((g2-g1)*h1)
+
+        local d = i2-i1
+        local c = (j2-j1)
+        local w = ((j2-j1)*i1) - ((i2-i1)*j1)
+
+        xk = (1/((a*d)-(b*c))) * ((d*v)-(b*w))
+        yk = (-1/((a*d)-(b*c))) * ((a*w)-(c*v))
+    else
+        xk,yk = 0,0
     end
-    return x,y
+    return xk, yk
 end
 
 function pixel_to_map_coords(x, y)
@@ -166,8 +180,8 @@ function get_fov(x, y, dist)
     local triangles = {}
     local step = math.pi / 32
     local i = 0
-    local last_x, last_y = line_intersects_wall(x, y, dist, 0)
-    for i = 0, 2 * math.pi - step, step do
+    local last_x, last_y = line_intersects_wall(x, y, x + dist, y)
+    for i = step, 2 * math.pi - step, step do
         local x1 = x + math.cos(i) * dist
         local y1 = y + math.sin(i) * dist
         x1, y1 = line_intersects_wall(x, y, x1, y1)
