@@ -59,10 +59,6 @@ function Guard:update(dt)
     end
 end
 
-function distance(x1, y1, x2, y2)
-    return math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
-end
-
 function Guard:fire_at(x, y)
     local bullet = Bullet:new()
     bullet.x, bullet.y = self:get_center()
