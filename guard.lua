@@ -36,7 +36,8 @@ function Guard:update(dt)
             self.time_since_fire = 0
         end
     elseif self.path[1] ~= nil then
-        target_x, target_y = self.path[1].x, self.path[1].y
+        target_x = self.path[1].x + (tile_w - self.width) / 2
+        target_y = self.path[1].y + (tile_h - self.height) / 2
         dx = target_x - self.x
         dy = target_y - self.y
 
