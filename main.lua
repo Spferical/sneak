@@ -1,5 +1,6 @@
 require("map")
 require("guard")
+require("target")
 ROT = require("rotLove/rotLove/rotLove")
 Camera = require "hump.camera"
 debug = true
@@ -17,6 +18,7 @@ function love.load(arg)
     player_image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
     bullet_image = love.graphics.newImage("assets/bullet.png")
+    target_image = love.graphics.newImage("assets/target.png")
 end
 
 function distance(x1, y1, x2, y2)
@@ -46,6 +48,7 @@ function start_level()
     camera = Camera(player.x, player.y)
     camera:zoomTo(get_scale())
     spawn_guards()
+    spawn_target()
 end
 
 function point_in_player(x, y)
@@ -112,6 +115,22 @@ function spawn_guards()
         guard.y = pos.y
         table.insert(guards, guard)
     end
+end
+
+function spawn_target()
+    -- just spawn him in the upper left of the map
+    x = 1
+    y = 1
+    while map.grid[x][y] == tiles.wall do
+        x = x + 1
+        if x >= map.width then
+            y = y + 1
+            x = 1
+        end
+    end
+    target = Target:new()
+    target.x = x * tile_w
+    target.y = y * tile_h
 end
 
 function update_camera(dt)
@@ -238,6 +257,7 @@ function love.draw()
         love.graphics.setColor(255, 255, 255, 255)
         love.graphics.draw(player_image, player.x , player.y)
         draw_guards()
+        love.graphics.draw(target_image, target.x, target.y)
         draw_bullets()
         camera:detach()
         if debug then
