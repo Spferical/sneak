@@ -184,7 +184,19 @@ function get_fov(x, y, dist)
     local endpoints = {}
     for fmx = math.max(1, mx - map_dist), math.min(map.width - 1, mx + map_dist) do
         for fmy = math.max(1, my - map_dist), math.min(map.height - 1, my + map_dist) do
-            next_to_wall =  map.grid[fmx][fmy] == tiles.wall or map.grid[fmx-1][fmy-1] == tiles.wall or map.grid[fmx][fmy-1] == tiles.wall or map.grid[fmx-1][fmy] == tiles.wall
+            nearby_walls = {
+                map.grid[fmx][fmy] == tiles.wall,
+                map.grid[fmx-1][fmy-1] == tiles.wall,
+                map.grid[fmx][fmy-1] == tiles.wall,
+                map.grid[fmx-1][fmy] == tiles.wall
+            }
+            local num_nearby_walls = 0
+            for i = 1, #nearby_walls do
+                if nearby_walls[i] then
+                    num_nearby_walls = num_nearby_walls + 1
+                end
+            end
+            local next_to_wall = num_nearby_walls == 1
             local fx = fmx * tile_w
             local fy = fmy * tile_h
             local angle = math.atan2(fy - y, fx - x)
@@ -201,9 +213,20 @@ function get_fov(x, y, dist)
         if next_to_wall then
             local eix, eiy = line_intersects_wall(x, y, ex, ey)
             if almostequal(eix, ex, 1) and almostequal(eiy, ey, 1) then
-                table.insert(triangles, {x, y, last_x, last_y, ex, ey})
-                last_x = ex
-                last_y = ey
+                local ox1 = x + math.cos(angle) * dist
+                local oy1 = y + math.sin(angle) * dist
+                local x1, y1 = line_intersects_wall(x, y, ox1, oy1)
+                if math.abs(ex - x) < math.abs(x1 - x) then
+                    table.insert(triangles, {x, y, last_x, last_y, ex, ey})
+                    last_x = x1
+                    last_y = y1
+
+                else
+                    table.insert(triangles, {x, y, last_x, last_y, ex, ey})
+                    last_x = ex
+                    last_y = ey
+                end
+
             end
         else
             local ox1 = x + math.cos(angle) * dist
