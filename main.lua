@@ -204,12 +204,9 @@ function handle_player_keys(dt)
 end
 
 function check_player_collision()
-    x1 = math.floor(player.x / tile_w)
-    y1 = math.floor(player.y / tile_h)
-    x2 = math.floor((player.x + player.width) / tile_w)
-    y2 = math.floor((player.y + player.height) / tile_h)
-    return map.grid[x1][y1] == tiles.wall or map.grid[x2][y2] == tiles.wall or
-        map.grid[x2][y1] == tiles.wall or map.grid[x1][y2] == tiles.wall
+    local x, y = get_player_center()
+    x, y = pixel_to_map_coords(x, y)
+    return map.grid[x][y] == tiles.wall
 end
 
 function love.resize(w, h)
