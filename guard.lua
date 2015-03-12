@@ -107,8 +107,9 @@ function Guard:begin_wander()
 end
 
 function Guard:get_path_to(x, y)
-    self_map_x = math.floor(self.x / tile_w)
-    self_map_y = math.floor(self.y / tile_h)
+    local sx, sy = self:get_center()
+    self_map_x = math.floor(sx / tile_w)
+    self_map_y = math.floor(sy / tile_h)
     path = get_path(self_map_x, self_map_y, x, y)
 
     -- we don't need to walk to the square we're already in
