@@ -19,6 +19,10 @@ function love.load(arg)
     bullet_image = love.graphics.newImage("assets/bullet.png")
 end
 
+function distance(x1, y1, x2, y2)
+    return math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
+end
+
 function start_level()
     player = {
         x = 100,

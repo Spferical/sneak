@@ -35,10 +35,10 @@ function line_intersects_wall(x1, y1, x2, y2)
             -- return intersection point
             local mx = map_x * tile_w
             local my = map_y * tile_h
-            local left = mx - 1
-            local right = mx + tile_w + 1
-            local top = my - 1
-            local bottom = my + tile_h + 1
+            local left = mx
+            local right = mx + tile_w
+            local top = my
+            local bottom = my + tile_h
             local px, py = p.x * tile_w, p.y * tile_h
             if x1 <= px then
                 local x, y = findIntersect(x1, y1, px, py, left, top, left, bottom, true, true)
@@ -62,7 +62,7 @@ function line_intersects_wall(x1, y1, x2, y2)
                     return x, y
                 end
             end
-            print('uh')
+            return x1, y1
         end
     end
     return x2, y2
@@ -178,20 +178,54 @@ end
 function get_fov(x, y, dist)
     -- ideal algorithm described at http://www.redblobgames.com/articles/visibility/
     local triangles = {}
-    local step = math.pi / 32
-    local i = 0
-    local last_x, last_y = line_intersects_wall(x, y, x + dist, y)
-    for i = step, 2 * math.pi - step, step do
-        local x1 = x + math.cos(i) * dist
-        local y1 = y + math.sin(i) * dist
-        x1, y1 = line_intersects_wall(x, y, x1, y1)
-        table.insert(triangles, {x, y, last_x, last_y, x1, y1})
-        last_x = x1
-        last_y = y1
+    local last_x, last_y = line_intersects_wall(x, y, x - dist, y)
+    local mx, my = pixel_to_map_coords(x, y)
+    local map_dist = math.floor(dist / tile_w)
+    local endpoints = {}
+    for fmx = math.max(1, mx - map_dist), math.min(map.width - 1, mx + map_dist) do
+        for fmy = math.max(1, my - map_dist), math.min(map.height - 1, my + map_dist) do
+            next_to_wall =  map.grid[fmx][fmy] == tiles.wall or map.grid[fmx-1][fmy-1] == tiles.wall or map.grid[fmx][fmy-1] == tiles.wall or map.grid[fmx-1][fmy] == tiles.wall
+            local fx = fmx * tile_w
+            local fy = fmy * tile_h
+            local angle = math.atan2(fy - y, fx - x)
+            table.insert(endpoints, {angle, fx, fy, next_to_wall})
+        end
     end
+    local sort_func = function(a, b)
+        return a[1] < b[1]
+    end
+    table.sort(endpoints, sort_func)
+
+    for i, ep in ipairs(endpoints) do
+        local angle, ex, ey, next_to_wall = ep[1], ep[2], ep[3], ep[4]
+        if next_to_wall then
+            local eix, eiy = line_intersects_wall(x, y, ex, ey)
+            if almostequal(eix, ex, 1) and almostequal(eiy, ey, 1) then
+                table.insert(triangles, {x, y, last_x, last_y, ex, ey})
+                last_x = ex
+                last_y = ey
+            end
+        else
+            local ox1 = x + math.cos(angle) * dist
+            local oy1 = y + math.sin(angle) * dist
+            local x1, y1 = line_intersects_wall(x, y, ox1, oy1)
+            if x1 == ox1 and y1 == oy1 then
+                table.insert(triangles, {x, y, last_x, last_y, x1, y1})
+                last_x = x1
+                last_y = y1
+            end
+        end
+    end
+    local x1, y1 = line_intersects_wall(x, y, x - dist, y)
+    table.insert(triangles, {x, y, last_x, last_y, x1, y1})
     return triangles
 end
 
+
+function almostequal(a, b, err)
+    err = err or 0.01
+    return math.abs(a - b) < err
+end
 
 function generate_map()
     map.grid = {}
