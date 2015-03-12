@@ -64,7 +64,8 @@ end
 
 function get_path(from_x, from_y, to_x, to_y)
     path = {}
-    astar = ROT.Path.AStar(to_x, to_y, path_callback)
+    astar = ROT.Path.AStar(to_x, to_y, path_callback,
+        {topology=4})
     function callback(x, y)
         table.insert(path, {x = x, y = y})
     end
