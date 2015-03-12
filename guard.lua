@@ -44,6 +44,10 @@ function Guard:update(dt)
         mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
         dx = dx / mag * dt * self.speed
         dy = dy / mag * dt * self.speed
+        if self.state == 'chase' then
+            dx = dx * 2
+            dy = dy * 2
+        end
 
         if math.sqrt(math.pow(dx, 2) + math.pow(dy, 2)) < mag then
             self.x = self.x + dx
