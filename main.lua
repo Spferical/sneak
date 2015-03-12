@@ -19,6 +19,7 @@ function love.load(arg)
     guard_image = love.graphics.newImage("assets/guard.png")
     bullet_image = love.graphics.newImage("assets/bullet.png")
     target_image = love.graphics.newImage("assets/target.png")
+    target_dead_image = love.graphics.newImage("assets/target_dead.png")
 end
 
 function distance(x1, y1, x2, y2)
@@ -76,6 +77,7 @@ function love.update(dt)
     if gamestate == 'playing' then
         update_camera(dt)
         if action then
+            update_target(dt)
             update_guards(dt)
             update_bullets(dt)
         end
@@ -105,6 +107,13 @@ function update_bullets(dt)
         elseif bullet:collides_with_wall() then
             table.remove(bullets, i)
         end
+    end
+end
+
+function update_target(dt)
+    local x, y = target:get_center()
+    if point_in_player(x, y) then
+        target.dead = true
     end
 end
 
@@ -234,6 +243,14 @@ function draw_bullets()
     end
 end
 
+function draw_target()
+    if target.dead then
+        love.graphics.draw(target_dead_image, target.x, target.y)
+    else
+        love.graphics.draw(target_image, target.x, target.y)
+    end
+end
+
 function love.draw()
     if gamestate == 'menu' then
         love.graphics.setFont(title_font)
@@ -257,7 +274,7 @@ function love.draw()
         love.graphics.setColor(255, 255, 255, 255)
         love.graphics.draw(player_image, player.x , player.y)
         draw_guards()
-        love.graphics.draw(target_image, target.x, target.y)
+        draw_target()
         draw_bullets()
         camera:detach()
         if debug then
