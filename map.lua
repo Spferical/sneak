@@ -188,6 +188,9 @@ function get_fov(x, y, dist)
         last_x = x1
         last_y = y1
     end
+    -- final triangle to close the FOV
+    local x1, y1 = line_intersects_wall(x, y, x + dist, y)
+    table.insert(triangles, {x, y, last_x, last_y, x1, y1})
     return triangles
 end
 
