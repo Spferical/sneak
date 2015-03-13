@@ -78,6 +78,15 @@ function love.update(dt)
             update_target(dt)
             update_guards(dt)
             update_bullets(dt)
+            if target.dead then
+                local x, y = get_player_center()
+                x, y = pixel_to_map_coords(x, y)
+                local sx, sy = map.spawn[1], map.spawn[2]
+                if x == sx and y == sy then
+                    -- player wins level
+                    gamestate = 'win'
+                end
+            end
         end
     end
 end
@@ -207,7 +216,7 @@ function check_player_collision()
 end
 
 function love.resize(w, h)
-    if gamestate == 'playing' or gamestate == 'gameover' then
+    if gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' then
         camera:zoomTo(get_scale())
     end
 end
@@ -252,7 +261,7 @@ function love.draw()
         love.graphics.printf("Sneak", 25, 25, love.graphics.getWidth() - 50, "center")
         love.graphics.setFont(main_font)
         love.graphics.printf("Press enter to start", 25, love.graphics.getHeight() - 50, love.graphics.getWidth() - 50, "center")
-    elseif gamestate == 'playing' or gamestate == 'gameover' then
+    elseif gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' then
         camera:attach()
         draw_map(camera)
         for i, guard in ipairs(guards) do
@@ -277,7 +286,12 @@ function love.draw()
             love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
         end
         if gamestate == 'gameover' then
+            love.graphics.setColor(255, 0, 0, 255)
             love.graphics.printf("YOU DIED!\n Press enter to return to the main menu.",
+                50, 50, love.graphics.getWidth() - 50, "center")
+        elseif gamestate == 'win' then
+            love.graphics.setColor(0, 255, 0, 255)
+            love.graphics.printf("YOU WIN!\n Press enter to continue to the next level.",
                 50, 50, love.graphics.getWidth() - 50, "center")
         end
     end
