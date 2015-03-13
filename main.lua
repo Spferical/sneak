@@ -115,7 +115,7 @@ function update_bullets(dt)
     for i = #bullets, 1, -1 do
         local bullet = bullets[i]
         bullet:update(dt)
-        if point_in_player(bullet.x, bullet.y) then
+        if not debug and point_in_player(bullet.x, bullet.y) then
             gamestate = 'gameover'
         elseif bullet:collides_with_wall() then
             table.remove(bullets, i)
