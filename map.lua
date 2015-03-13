@@ -221,7 +221,10 @@ function generate_map(level)
         end
     end
     mapgen = ROT.Map.Digger(map.width, map.height,
-        {dugPercentage = 0.75})
+        {dugPercentage = 0.90,
+        roomWidth = {1, 5},
+        roomHeight = {1, 5},
+        timeLimit = 50000})
     function callback(x, y, val)
         if val == 2 or val == 0 then
             map.grid[x-1][y-1] = tiles.floor
