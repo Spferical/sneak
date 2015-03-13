@@ -86,7 +86,11 @@ function love.update(dt)
                 local sx, sy = map.spawn[1], map.spawn[2]
                 if x == sx and y == sy then
                     -- player wins level
-                    gamestate = 'win'
+                    if level < 5 then
+                        gamestate = 'win'
+                    else
+                        gamestate = 'victory'
+                    end
                 end
             end
         end
@@ -158,17 +162,17 @@ end
 
 
 function love.keypressed(key, code)
-    if gamestate == 'menu' then
-        if key == 'return' then
+    if key == 'return' then
+        if gamestate == 'menu' then
             start_level(1)
-            gamestate = 'playing'
-        end
-    elseif gamestate == 'gameover' then
-        if key == 'return' then
+        elseif gamestate == 'gameover' then
+            gamestate = 'menu'
+        elseif gamestate == 'win' then
+            start_level(level + 1)
+        elseif gamestate == 'victory' then
             gamestate = 'menu'
         end
-    elseif gamestate == 'win' then
-        start_level(level + 1)
+
     end
 end
 
@@ -223,7 +227,7 @@ function check_player_collision()
 end
 
 function love.resize(w, h)
-    if gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' then
+    if gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' or gamestate == 'victory' then
         camera:zoomTo(get_scale())
     end
 end
@@ -268,7 +272,7 @@ function love.draw()
         love.graphics.printf("Sneak", 25, 25, love.graphics.getWidth() - 50, "center")
         love.graphics.setFont(main_font)
         love.graphics.printf("Press enter to start", 25, love.graphics.getHeight() - 50, love.graphics.getWidth() - 50, "center")
-    elseif gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' then
+    elseif gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' or gamestate == 'victory' then
         camera:attach()
         draw_map(camera)
         for i, guard in ipairs(guards) do
@@ -299,6 +303,10 @@ function love.draw()
         elseif gamestate == 'win' then
             love.graphics.setColor(0, 255, 0, 255)
             love.graphics.printf("YOU WIN!\n Press enter to continue to the next level.",
+                50, 50, love.graphics.getWidth() - 50, "center")
+        elseif gamestate == 'victory' then
+            love.graphics.setColor(255, 255, 255, 255)
+            love.graphics.printf("YOU WIN THE GAME!\n\nCongratulations!\n\nPress enter to return to the main menu.",
                 50, 50, love.graphics.getWidth() - 50, "center")
         end
     end
