@@ -427,8 +427,8 @@ function love.draw()
         end
         for i, ability in ipairs(player.abilities) do
             love.graphics.setFont(main_font)
-            local y = love.graphics.getHeight() - 50
-            local x = 10 + 200 * (i - 1)
+            local x = love.graphics.getWidth() - 200
+            local y = love.graphics.getHeight() - 200 + 50 * i
             if ability.active then
                 love.graphics.setColor(255, 0, 0, 255)
             else
