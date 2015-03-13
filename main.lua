@@ -35,7 +35,7 @@ function start_level()
         width = 32,
         xmove = 0,
         ymove = 0,
-        speed = 400,
+        speed = 200,
     }
 
     guards = {}
