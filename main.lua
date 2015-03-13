@@ -60,6 +60,10 @@ function Player:has_ability(name)
     return self.abilities_by_name[name]
 end
 
+function Player:has_active_ability(name)
+    return self:has_ability(name) and self.abilities_by_name[name].active
+end
+
 function start_level(num)
     level = num
     if num == 1 then
@@ -136,7 +140,7 @@ function update_guards(dt)
         local x, y = guard:get_center()
         if point_in_player(x, y) then
             table.remove(guards, i)
-        else
+        elseif not player:has_active_ability('freeze time') then
             guard:update(dt)
         end
     end
@@ -163,7 +167,9 @@ function update_bullets(dt)
     -- iterate back-to-front to avoid skipping
     for i = #bullets, 1, -1 do
         local bullet = bullets[i]
-        bullet:update(dt)
+        if not player:has_active_ability('freeze time') then
+            bullet:update(dt)
+        end
         if not debug and point_in_player(bullet.x, bullet.y) then
             gamestate = 'gameover'
         elseif bullet:collides_with_wall() then
