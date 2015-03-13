@@ -17,7 +17,7 @@ Map = {
     width = 20,
     height = 20,
     grid = nil,
-    num_guards = 1,
+    num_guards = 3,
     guard_spawns = {},
     spawn = nil,
 }
@@ -207,7 +207,7 @@ function generate_map(level)
     map = Map:new()
     map.width = map.width + 1 * (level - 1)
     map.height = map.height + 10 * (level - 1)
-    map.num_guards = math.pow(2, level - 1)
+    map.num_guards = map.num_guards * math.pow(2, level - 1)
     map.grid = {}
     map.guard_spawns = {}
     -- fill the map with floor tiles
