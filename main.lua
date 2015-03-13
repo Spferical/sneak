@@ -233,7 +233,9 @@ function love.resize(w, h)
 end
 
 function get_scale()
-    return love.graphics.getHeight() / 480 / 4
+    local map_height = tile_h * map.height
+    return math.max(love.graphics.getHeight() / map_height,
+        love.graphics.getHeight() / 480 / 4)
 end
 
 function get_camera_edges()
