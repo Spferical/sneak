@@ -149,7 +149,7 @@ end
 function update_abilities(dt)
     for i, ability in ipairs(player.abilities) do
         if ability.active then
-            ability.charge = ability.charge - dt * 50
+            ability.charge = ability.charge - dt * 100
             if ability.charge <= 0 then
                 ability.charge = 0
                 ability.active = false
