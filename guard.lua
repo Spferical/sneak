@@ -6,7 +6,8 @@ Guard = {
     height = 32,
     target = nil,
     path = {},
-    speed = 300,
+    speed = 75,
+    chase_speed = 200,
     bullet_speed = 1000,
     view_dist = 500,
     state = 'wander',
@@ -43,12 +44,14 @@ function Guard:update(dt)
 
         -- normalize vector
         mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
-        dx = dx / mag * dt * self.speed
-        dy = dy / mag * dt * self.speed
+
         if self.state == 'chase' then
-            dx = dx * 2
-            dy = dy * 2
+            speed = self.chase_speed
+        else
+            speed = self.speed
         end
+        dx = dx / mag * dt * speed
+        dy = dy / mag * dt * speed
 
         if math.sqrt(math.pow(dx, 2) + math.pow(dy, 2)) < mag then
             self.x = self.x + dx
