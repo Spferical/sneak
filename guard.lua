@@ -93,8 +93,9 @@ function Guard:player_is_in_sight()
 end
 
 function Guard:chase_player()
-    player_map_x = math.floor(player.x / tile_w)
-    player_map_y = math.floor(player.y / tile_h)
+    local x, y = get_player_center()
+    player_map_x = math.floor(x / tile_w)
+    player_map_y = math.floor(y / tile_h)
     self.path = self:get_path_to(player_map_x, player_map_y)
 end
 
