@@ -4,11 +4,13 @@ ROT=require 'rotLove/rotLove/rotLove'
 tiles = {
     floor = 1,
     wall = 2,
+    escape = 3,
 }
 
 tile_images = {
     love.graphics.newImage("assets/floor.png"),
-    love.graphics.newImage("assets/wall.png")
+    love.graphics.newImage("assets/wall.png"),
+    love.graphics.newImage("assets/escape.png"),
 }
 
 map = {
@@ -17,6 +19,7 @@ map = {
     grid = nil,
     num_guards = 5,
     guard_spawns = {},
+    spawn = nil,
 }
 
 tile_w = 48
@@ -234,6 +237,15 @@ function generate_map()
         end
         table.insert(map.guard_spawns, {x = x * tile_w, y = y * tile_h})
     end
+
+    -- find a spawn for the player
+    local x = math.floor(map.width / 2)
+    local y = map.height - 2
+    while map.grid[x][y] == tiles.wall do
+        y = y - 1
+    end
+    map.grid[x][y] = tiles.escape
+    map.spawn = {x, y}
 end
 
 function draw_map(camera)

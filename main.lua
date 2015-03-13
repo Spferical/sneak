@@ -41,11 +41,8 @@ function start_level()
     guards = {}
     bullets = {}
     generate_map()
-    player.x = map.width * tile_w / 2
-    player.y = (map.height - 2) * tile_h
-    while point_is_in_wall(player.x, player.y) do
-        player.y = player.y - tile_h
-    end
+    player.x = map.spawn[1] * tile_w
+    player.y = map.spawn[2] * tile_h
     camera = Camera(player.x, player.y)
     camera:zoomTo(get_scale())
     spawn_guards()
