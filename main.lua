@@ -91,7 +91,7 @@ function point_in_player(x, y)
 end
 
 function path_callback(x, y)
-    return map.grid[x][y] == tiles.floor
+    return map.grid[x][y] ~= tiles.wall
 end
 
 function get_path(from_x, from_y, to_x, to_y)
