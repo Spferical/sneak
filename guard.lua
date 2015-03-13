@@ -12,6 +12,8 @@ Guard = {
     view_dist = 500,
     state = 'wander',
     alert = false,
+    fov_range = math.pi / 3,
+    direction = 0,
     fire_cooldown = 0.2,
     time_since_fire = 0,
 }
@@ -38,11 +40,13 @@ function Guard:update(dt)
             self:fire_at(px, py)
             self.time_since_fire = 0
         end
-    elseif self.path[1] ~= nil then
+    end
+    if self.path[1] ~= nil then
         target_x = self.path[1].x + (tile_w - self.width) / 2
         target_y = self.path[1].y + (tile_h - self.height) / 2
         dx = target_x - self.x
         dy = target_y - self.y
+        self.direction = math.atan2(dy, dx)
 
         -- normalize vector
         mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
@@ -92,6 +96,11 @@ function Guard:player_is_in_sight()
     px, py = player:get_center()
     local sx, sy = self:get_center()
     if distance(sx, sy, px, py) > self.view_dist then
+        return false
+    end
+    -- has to be within fov angle too
+    local angle = math.atan2(py - sy, px - sx)
+    if math.abs(angle - self.direction) > self.fov_range then
         return false
     end
     -- else, check if our sight is unbroken by walls

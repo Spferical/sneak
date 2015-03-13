@@ -414,7 +414,9 @@ function love.draw()
                 love.graphics.setColor(255, 255, 0, 100)
             end
             local gx, gy  = guard:get_center()
-            for j, t in ipairs(get_fov(gx, gy, guard.view_dist)) do
+            local angle1 = guard.direction - guard.fov_range
+            local angle2 = guard.direction + guard.fov_range
+            for j, t in ipairs(get_fov(gx, gy, angle1, angle2, guard.view_dist)) do
                 love.graphics.polygon('fill', t)
             end
         end

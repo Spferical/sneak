@@ -185,13 +185,13 @@ function point_is_in_wall(x, y)
     return map.grid[x][y] == tiles.wall
 end
 
-function get_fov(x, y, dist)
+function get_fov(x, y, angle1, angle2, dist)
     -- ideal algorithm described at http://www.redblobgames.com/articles/visibility/
     local triangles = {}
-    local step = math.pi / 32
+    local step = (angle2 - angle1) / 64
     local i = 0
-    local last_x, last_y = line_intersects_wall(x, y, x + dist, y)
-    for i = step, 2 * math.pi - step, step do
+    local last_x, last_y = x, y
+    for i = angle1, angle2, step do
         local x1 = x + math.cos(i) * dist
         local y1 = y + math.sin(i) * dist
         x1, y1 = line_intersects_wall(x, y, x1, y1)
@@ -199,9 +199,6 @@ function get_fov(x, y, dist)
         last_x = x1
         last_y = y1
     end
-    -- final triangle to close the FOV
-    local x1, y1 = line_intersects_wall(x, y, x + dist, y)
-    table.insert(triangles, {x, y, last_x, last_y, x1, y1})
     return triangles
 end
 
