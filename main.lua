@@ -44,6 +44,8 @@ function start_level(num)
             ymove = 0,
             speed = 200,
             abilities = {},
+            ability_meters = {},
+            abilities_active = {},
         }
     end
 
@@ -92,6 +94,7 @@ function love.update(dt)
             update_target(dt)
             update_guards(dt)
             update_bullets(dt)
+            update_abilities(dt)
             if target.dead then
                 local x, y = get_player_center()
                 x, y = pixel_to_map_coords(x, y)
@@ -118,6 +121,24 @@ function update_guards(dt)
             table.remove(guards, i)
         else
             guard:update(dt)
+        end
+    end
+end
+
+function update_abilities(dt)
+    for ability, active in pairs(player.abilities_active) do
+        charge = player.ability_meters[ability]
+        if active then
+            player.ability_meters[ability] = charge - dt * 50
+            if player.ability_meters[ability] <= 0 then
+                player.ability_meters[ability] = 0
+                player.abilities_active[ability] = false
+            end
+        elseif charge < 100 then
+            player.ability_meters[ability] = charge + dt * 10
+            if player.ability_meters[ability] > 100 then
+                player.ability_meters[ability] = 100
+            end
         end
     end
 end
@@ -149,6 +170,7 @@ function update_items(dt)
         if distance(x, y, px, py) < (item.width + player.width) / 2 then
             -- player picks up item
             player.abilities[item.ability] = true
+            player.ability_meters[item.ability] = 100
             real_time_since_item_get = 0
             ability_just_found = item.ability
             table.remove(items, i)
@@ -237,7 +259,10 @@ function love.keypressed(key, code)
         elseif gamestate == 'victory' then
             gamestate = 'menu'
         end
-
+    elseif key == 'z' and gamestate == 'playing' then
+        if player.abilities['quickness'] then
+            player.abilities_active['quickness'] = not player.abilities_active['quickness']
+        end
     end
 end
 
@@ -269,11 +294,15 @@ function handle_player_keys(dt)
             -- do the movements, and undo them if the player bumpts into a wall
             old_x = player.x
             old_y = player.y
-            player.x = player.x + player.xmove * player.speed * dt
+            local speed = player.speed
+            if player.abilities_active['quickness'] then
+                speed = speed * 2
+            end
+            player.x = player.x + player.xmove * speed * dt
             if check_player_collision() then
                 player.x = old_x
             end
-            player.y = player.y + player.ymove * player.speed * dt
+            player.y = player.y + player.ymove * speed * dt
             if check_player_collision() then
                 player.y = old_y
             end
@@ -378,6 +407,23 @@ function love.draw()
             love.graphics.printf("You found an item!\n\nNew ability: "
                  .. ability_just_found,
                  50, 50, love.graphics.getWidth() - 50, "center")
+            love.graphics.setColor(255, 255, 255, 255)
+        end
+        if player.abilities['quickness'] then
+            love.graphics.setFont(main_font)
+            local y = love.graphics.getHeight() - 40
+            local x = 10
+            if player.abilities_active['quickness'] then
+                love.graphics.setColor(255, 0, 0, 255)
+            else
+                love.graphics.setColor(255, 255, 255, 255)
+            end
+            love.graphics.print("[z] Quickness", x, y)
+            local charge = player.ability_meters['quickness']
+            love.graphics.setColor(255, 0, 0, 200)
+            love.graphics.rectangle('fill', x, y + 30, charge, 10)
+            love.graphics.setColor(255, 255, 255, 200)
+            love.graphics.rectangle('fill', x + charge, y + 30, 100 - charge, 10)
             love.graphics.setColor(255, 255, 255, 255)
         end
         if debug then

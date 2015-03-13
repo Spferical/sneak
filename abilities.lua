@@ -1,5 +1,5 @@
 abilities = {
-    'quickness'
+    'quickness',
 }
 
 Item = {
