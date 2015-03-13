@@ -208,7 +208,7 @@ end
 
 function generate_map(level)
     map = Map:new()
-    map.width = map.width + 10 * (level - 1)
+    map.width = map.width + 1 * (level - 1)
     map.height = map.height + 10 * (level - 1)
     map.num_guards = math.pow(2, level - 1)
     map.grid = {}
