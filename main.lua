@@ -17,6 +17,7 @@ function love.load(arg)
     gamestate = 'menu'
     player_image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
+    guard_alert_image = love.graphics.newImage("assets/guard_alert.png")
     bullet_image = love.graphics.newImage("assets/bullet.png")
     target_image = love.graphics.newImage("assets/target.png")
     target_dead_image = love.graphics.newImage("assets/target_dead.png")
@@ -250,7 +251,13 @@ end
 
 function draw_guards()
     for i, guard in ipairs(guards) do
-        love.graphics.draw(guard_image, guard.x, guard.y)
+        local image
+        if guard.alert then
+            image = guard_alert_image
+        else
+            image = guard_image
+        end
+        love.graphics.draw(image, guard.x, guard.y)
     end
 end
 

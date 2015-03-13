@@ -7,10 +7,11 @@ Guard = {
     target = nil,
     path = {},
     speed = 75,
-    chase_speed = 200,
+    alert_speed = 200,
     bullet_speed = 1000,
     view_dist = 500,
     state = 'wander',
+    alert = false,
     fire_cooldown = 0.2,
     time_since_fire = 0,
 }
@@ -30,6 +31,7 @@ function Guard:update(dt)
     self.time_since_fire = self.time_since_fire + dt
     if self:player_is_in_sight() then
         self.state = 'chase'
+        self.alert = true
         self:chase_player()
         if self.time_since_fire > self.fire_cooldown then
             px, py = get_player_center()
@@ -45,8 +47,8 @@ function Guard:update(dt)
         -- normalize vector
         mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
 
-        if self.state == 'chase' then
-            speed = self.chase_speed
+        if self.alert then
+            speed = self.alert_speed
         else
             speed = self.speed
         end
