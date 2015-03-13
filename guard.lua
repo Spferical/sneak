@@ -34,7 +34,7 @@ function Guard:update(dt)
         self.alert = true
         self:chase_player()
         if self.time_since_fire > self.fire_cooldown then
-            px, py = get_player_center()
+            px, py = player:get_center()
             self:fire_at(px, py)
             self.time_since_fire = 0
         end
@@ -85,7 +85,7 @@ end
 
 function Guard:player_is_in_sight()
     -- return false if player is too far away
-    px, py = get_player_center()
+    px, py = player:get_center()
     local sx, sy = self:get_center()
     if distance(sx, sy, px, py) > self.view_dist then
         return false
@@ -95,7 +95,7 @@ function Guard:player_is_in_sight()
 end
 
 function Guard:chase_player()
-    local x, y = get_player_center()
+    local x, y = player:get_center()
     player_map_x = math.floor(x / tile_w)
     player_map_y = math.floor(y / tile_h)
     self.path = self:get_path_to(player_map_x, player_map_y)

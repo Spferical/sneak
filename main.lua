@@ -8,10 +8,6 @@ debug = true
 
 random = love.math.newRandomGenerator()
 
-function get_player_center()
-    return player.x + player.width / 2, player.y + player.height / 2
-end
-
 function love.load(arg)
     title_font = love.graphics.newFont("assets/kenpixel.ttf", 70)
     main_font = love.graphics.newFont("assets/kenpixel.ttf", 20)
@@ -31,22 +27,43 @@ function distance(x1, y1, x2, y2)
     return math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
 end
 
+Player = {
+    x = 100,
+    y = 100,
+    height = 32,
+    width = 32,
+    xmove = 0,
+    ymove = 0,
+    speed = 200,
+    abilities = {},
+    abilities_by_name = {},
+}
+
+function Player:new(o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+function Player:get_center()
+    return self.x + self.width / 2, self.y + self.height / 2
+end
+
+function Player:check_collision()
+    local x, y = self:get_center()
+    x, y = pixel_to_map_coords(x, y)
+    return map.grid[x][y] == tiles.wall
+end
+
+function Player:has_ability(name)
+    return self.abilities_by_name[name]
+end
+
 function start_level(num)
     level = num
     if num == 1 then
-        player = {
-            x = 100,
-            y = 100,
-            image = nil,
-            height = 32,
-            width = 32,
-            xmove = 0,
-            ymove = 0,
-            speed = 200,
-            abilities = {},
-            ability_meters = {},
-            abilities_active = {},
-        }
+        player = Player:new()
     end
 
     guards = {}
@@ -96,7 +113,7 @@ function love.update(dt)
             update_bullets(dt)
             update_abilities(dt)
             if target.dead then
-                local x, y = get_player_center()
+                local x, y = player:get_center()
                 x, y = pixel_to_map_coords(x, y)
                 local sx, sy = map.spawn[1], map.spawn[2]
                 if x == sx and y == sy then
@@ -126,18 +143,17 @@ function update_guards(dt)
 end
 
 function update_abilities(dt)
-    for ability, active in pairs(player.abilities_active) do
-        charge = player.ability_meters[ability]
-        if active then
-            player.ability_meters[ability] = charge - dt * 50
-            if player.ability_meters[ability] <= 0 then
-                player.ability_meters[ability] = 0
-                player.abilities_active[ability] = false
+    for i, ability in ipairs(player.abilities) do
+        if ability.active then
+            ability.charge = ability.charge - dt * 50
+            if ability.charge <= 0 then
+                ability.charge = 0
+                ability.active = false
             end
-        elseif charge < 100 then
-            player.ability_meters[ability] = charge + dt * 10
-            if player.ability_meters[ability] > 100 then
-                player.ability_meters[ability] = 100
+        elseif ability.charge < ability.max_charge then
+            ability.charge = ability.charge + dt * 10
+            if ability.charge > ability.max_charge then
+                ability.charge = ability.max_charge
             end
         end
     end
@@ -166,13 +182,15 @@ end
 function update_items(dt)
     for i, item in ipairs(items) do
         local x, y = item.x + item.width / 2, item.y + item.height / 2
-        local px, py = get_player_center()
+        local px, py = player:get_center()
         if distance(x, y, px, py) < (item.width + player.width) / 2 then
             -- player picks up item
-            player.abilities[item.ability] = true
-            player.ability_meters[item.ability] = 100
+            ability = Ability:new()
+            ability.name = item.ability
+            table.insert(player.abilities, ability)
+            player.abilities_by_name[ability.name] = ability
             real_time_since_item_get = 0
-            ability_just_found = item.ability
+            ability_just_found = ability.name
             table.remove(items, i)
             return
         end
@@ -205,13 +223,7 @@ function spawn_target()
 end
 
 function spawn_items()
-    local possible_abilities = {}
-    for i, ability in ipairs(abilities) do
-        if not player.abilities[ability] then
-            table.insert(possible_abilities, ability)
-        end
-    end
-    if #possible_abilities == 0 then
+    if #player.abilities == #abilities then
         -- player already has all abilities
         return
     end
@@ -233,11 +245,11 @@ function spawn_items()
     item.y = y * tile_h + (tile_h - item.height) / 2
     -- keep randomly picking an ability until we have one the player does not
     -- have
-    item.ability = possible_abilities[
-        math.floor(random:random(#possible_abilities))]
-    while player.abilities[item.ability] do
-        item.ability = possible_abilities[
-            math.floor(random:random(#possible_abilities))]
+    item.ability = abilities[
+        math.floor(random:random(#abilities))]
+    while player:has_ability(item.ability) do
+        item.ability = abilities[
+            math.floor(random:random(#abilities))]
     end
     table.insert(items, item)
 end
@@ -259,9 +271,11 @@ function love.keypressed(key, code)
         elseif gamestate == 'victory' then
             gamestate = 'menu'
         end
-    elseif key == 'z' and gamestate == 'playing' then
-        if player.abilities['quickness'] then
-            player.abilities_active['quickness'] = not player.abilities_active['quickness']
+    elseif gamestate == 'playing' then
+        for i, ability in ipairs(player.abilities) do
+            if key == ability_keys[i] then
+                ability:toggle()
+            end
         end
     end
 end
@@ -295,15 +309,17 @@ function handle_player_keys(dt)
             old_x = player.x
             old_y = player.y
             local speed = player.speed
-            if player.abilities_active['quickness'] then
-                speed = speed * 2
+            if player:has_ability('quickness') then
+                if player.abilities_by_name['quickness'].active then
+                    speed = speed * 2
+                end
             end
             player.x = player.x + player.xmove * speed * dt
-            if check_player_collision() then
+            if player:check_collision() then
                 player.x = old_x
             end
             player.y = player.y + player.ymove * speed * dt
-            if check_player_collision() then
+            if player:check_collision() then
                 player.y = old_y
             end
 
@@ -312,12 +328,6 @@ function handle_player_keys(dt)
             return false
         end
     end
-end
-
-function check_player_collision()
-    local x, y = get_player_center()
-    x, y = pixel_to_map_coords(x, y)
-    return map.grid[x][y] == tiles.wall
 end
 
 function love.resize(w, h)
@@ -409,17 +419,17 @@ function love.draw()
                  50, 50, love.graphics.getWidth() - 50, "center")
             love.graphics.setColor(255, 255, 255, 255)
         end
-        if player.abilities['quickness'] then
+        for i, ability in ipairs(player.abilities) do
             love.graphics.setFont(main_font)
             local y = love.graphics.getHeight() - 40
-            local x = 10
-            if player.abilities_active['quickness'] then
+            local x = 10 + 100 * (i - 1)
+            if ability.active then
                 love.graphics.setColor(255, 0, 0, 255)
             else
                 love.graphics.setColor(255, 255, 255, 255)
             end
-            love.graphics.print("[z] Quickness", x, y)
-            local charge = player.ability_meters['quickness']
+            love.graphics.print("["..ability_keys[i].."] "..ability.name, x, y)
+            local charge = ability.charge
             love.graphics.setColor(255, 0, 0, 200)
             love.graphics.rectangle('fill', x, y + 30, charge, 10)
             love.graphics.setColor(255, 255, 255, 200)
