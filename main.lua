@@ -26,7 +26,8 @@ function distance(x1, y1, x2, y2)
     return math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
 end
 
-function start_level()
+function start_level(num)
+    level = num
     player = {
         x = 100,
         y = 100,
@@ -40,13 +41,14 @@ function start_level()
 
     guards = {}
     bullets = {}
-    generate_map()
+    generate_map(num)
     player.x = map.spawn[1] * tile_w
     player.y = map.spawn[2] * tile_h
     camera = Camera(player.x, player.y)
     camera:zoomTo(get_scale())
     spawn_guards()
     spawn_target()
+    gamestate = 'playing'
 end
 
 function point_in_player(x, y)
@@ -158,13 +160,15 @@ end
 function love.keypressed(key, code)
     if gamestate == 'menu' then
         if key == 'return' then
-            start_level()
+            start_level(1)
             gamestate = 'playing'
         end
     elseif gamestate == 'gameover' then
         if key == 'return' then
             gamestate = 'menu'
         end
+    elseif gamestate == 'win' then
+        start_level(level + 1)
     end
 end
 

@@ -13,7 +13,7 @@ tile_images = {
     love.graphics.newImage("assets/escape.png"),
 }
 
-map = {
+Map = {
     width = 20,
     height = 20,
     grid = nil,
@@ -21,6 +21,14 @@ map = {
     guard_spawns = {},
     spawn = nil,
 }
+
+function Map:new(o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
 
 tile_w = 48
 tile_h = 48
@@ -198,7 +206,11 @@ function get_fov(x, y, dist)
 end
 
 
-function generate_map()
+function generate_map(level)
+    map = Map:new()
+    map.width = map.width + 10 * (level - 1)
+    map.height = map.height + 10 * (level - 1)
+    map.num_guards = math.pow(2, level - 1)
     map.grid = {}
     map.guard_spawns = {}
     -- fill the map with floor tiles
