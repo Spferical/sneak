@@ -176,6 +176,9 @@ function handle_player_keys(dt)
         player.xmove = 0
 
         -- find out how the player wants to move
+        if love.keyboard.isDown(".") then
+            return true -- no action, but advance time
+        end
         if love.keyboard.isDown("up") then
             player.ymove = player.ymove - 1
         end
