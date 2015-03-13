@@ -345,7 +345,7 @@ end
 function get_scale()
     local map_height = tile_h * map.height
     return math.max(love.graphics.getHeight() / map_height,
-        love.graphics.getHeight() / 480 / 4)
+        love.graphics.getHeight() / 768 / 4)
 end
 
 function get_camera_edges()
@@ -427,8 +427,8 @@ function love.draw()
         end
         for i, ability in ipairs(player.abilities) do
             love.graphics.setFont(main_font)
-            local y = love.graphics.getHeight() - 40
-            local x = 10 + 100 * (i - 1)
+            local y = love.graphics.getHeight() - 50
+            local x = 10 + 200 * (i - 1)
             if ability.active then
                 love.graphics.setColor(255, 0, 0, 255)
             else
