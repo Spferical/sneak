@@ -1,6 +1,7 @@
 require("map")
 require("guard")
 require("target")
+require("abilities")
 ROT = require("rotLove/rotLove/rotLove")
 Camera = require "hump.camera"
 debug = true
@@ -15,12 +16,15 @@ function love.load(arg)
     title_font = love.graphics.newFont("assets/kenpixel.ttf", 70)
     main_font = love.graphics.newFont("assets/kenpixel.ttf", 20)
     gamestate = 'menu'
+    real_time_since_item_get = 5
+    ability_just_found = 'none'
     player_image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
     guard_alert_image = love.graphics.newImage("assets/guard_alert.png")
     bullet_image = love.graphics.newImage("assets/bullet.png")
     target_image = love.graphics.newImage("assets/target.png")
     target_dead_image = love.graphics.newImage("assets/target_dead.png")
+    item_image = love.graphics.newImage("assets/item.png")
 end
 
 function distance(x1, y1, x2, y2)
@@ -29,19 +33,23 @@ end
 
 function start_level(num)
     level = num
-    player = {
-        x = 100,
-        y = 100,
-        image = nil,
-        height = 32,
-        width = 32,
-        xmove = 0,
-        ymove = 0,
-        speed = 200,
-    }
+    if num == 1 then
+        player = {
+            x = 100,
+            y = 100,
+            image = nil,
+            height = 32,
+            width = 32,
+            xmove = 0,
+            ymove = 0,
+            speed = 200,
+            abilities = {},
+        }
+    end
 
     guards = {}
     bullets = {}
+    items = {}
     generate_map(num)
     player.x = map.spawn[1] * tile_w
     player.y = map.spawn[2] * tile_h
@@ -49,6 +57,7 @@ function start_level(num)
     camera:zoomTo(get_scale())
     spawn_guards()
     spawn_target()
+    spawn_items()
     gamestate = 'playing'
 end
 
@@ -77,7 +86,9 @@ function love.update(dt)
     action = handle_player_keys(dt)
     if gamestate == 'playing' then
         update_camera(dt)
+        real_time_since_item_get = real_time_since_item_get + dt
         if action then
+            update_items(dt)
             update_target(dt)
             update_guards(dt)
             update_bullets(dt)
@@ -131,6 +142,21 @@ function update_target(dt)
     end
 end
 
+function update_items(dt)
+    for i, item in ipairs(items) do
+        local x, y = item.x + item.width / 2, item.y + item.height / 2
+        local px, py = get_player_center()
+        if distance(x, y, px, py) < (item.width + player.width) / 2 then
+            -- player picks up item
+            player.abilities[item.ability] = true
+            real_time_since_item_get = 0
+            ability_just_found = item.ability
+            table.remove(items, i)
+            return
+        end
+    end
+end
+
 function spawn_guards()
     for i, pos in ipairs(map.guard_spawns) do
         guard = Guard:new()
@@ -154,6 +180,44 @@ function spawn_target()
     target = Target:new()
     target.x = x * tile_w
     target.y = y * tile_h
+end
+
+function spawn_items()
+    local possible_abilities = {}
+    for i, ability in ipairs(abilities) do
+        if not player.abilities[ability] then
+            table.insert(possible_abilities, ability)
+        end
+    end
+    if #possible_abilities == 0 then
+        -- player already has all abilities
+        return
+    end
+    -- spawn an item on a random floor tile
+    local x = math.floor(random:random(map.width - 1))
+    local y = math.floor(random:random(map.height - 1))
+    -- keep selecting random floor tiles until we get one away from the
+    -- player
+    local px, py = pixel_to_map_coords(player.x, player.y)
+    while not (map.grid[x][y] == tiles.floor and distance(x, y, px, py) > 10) do
+        x = math.floor(random:random(map.width - 1))
+        y = math.floor(random:random(map.height - 1))
+        px, py = pixel_to_map_coords(player.x, player.y)
+    end
+
+    -- spawn an item
+    local item = Item:new()
+    item.x = x * tile_w + (tile_w - item.width) / 2
+    item.y = y * tile_h + (tile_h - item.height) / 2
+    -- keep randomly picking an ability until we have one the player does not
+    -- have
+    item.ability = possible_abilities[
+        math.floor(random:random(#possible_abilities))]
+    while player.abilities[item.ability] do
+        item.ability = possible_abilities[
+            math.floor(random:random(#possible_abilities))]
+    end
+    table.insert(items, item)
 end
 
 function update_camera(dt)
@@ -267,6 +331,12 @@ function draw_bullets()
     end
 end
 
+function draw_items()
+    for i, item in ipairs(items) do
+        love.graphics.draw(item_image, item.x, item.y)
+    end
+end
+
 function draw_target()
     if target.dead then
         love.graphics.draw(target_dead_image, target.x, target.y)
@@ -300,7 +370,16 @@ function love.draw()
         draw_guards()
         draw_target()
         draw_bullets()
+        draw_items()
         camera:detach()
+        if real_time_since_item_get < 5 then
+            love.graphics.setFont(main_font)
+            love.graphics.setColor(0, 255, 0, 255)
+            love.graphics.printf("You found an item!\n\nNew ability: "
+                 .. ability_just_found,
+                 50, 50, love.graphics.getWidth() - 50, "center")
+            love.graphics.setColor(255, 255, 255, 255)
+        end
         if debug then
             love.graphics.setFont(main_font)
             love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
