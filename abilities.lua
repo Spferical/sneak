@@ -1,6 +1,7 @@
 abilities = {
     'quickness',
     'freeze time',
+    'invisibility',
 }
 
 ability_keys = {'z', 'x', 'c', 'v', 'b'}

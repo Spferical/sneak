@@ -390,6 +390,14 @@ function draw_target()
     end
 end
 
+function draw_player()
+    if player:has_active_ability('invisibility') then
+        love.graphics.setColor(100, 100, 255, 100)
+    end
+    love.graphics.draw(player_image, player.x , player.y)
+    love.graphics.setColor(255, 255, 255, 255)
+end
+
 function love.draw()
     if gamestate == 'menu' then
         love.graphics.setFont(title_font)
@@ -411,7 +419,7 @@ function love.draw()
             end
         end
         love.graphics.setColor(255, 255, 255, 255)
-        love.graphics.draw(player_image, player.x , player.y)
+        draw_player()
         draw_guards()
         draw_target()
         draw_bullets()

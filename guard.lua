@@ -84,6 +84,10 @@ function Guard:fire_at(x, y)
 end
 
 function Guard:player_is_in_sight()
+    -- if player is invisible, we can't see them
+    if player:has_active_ability('invisibility') then
+        return false
+    end
     -- return false if player is too far away
     px, py = player:get_center()
     local sx, sy = self:get_center()
