@@ -17,6 +17,7 @@ function love.load(arg)
     player_image = love.graphics.newImage("assets/player.png")
     guard_image = love.graphics.newImage("assets/guard.png")
     guard_alert_image = love.graphics.newImage("assets/guard_alert.png")
+    guard_dead_image = love.graphics.newImage("assets/guard_dead.png")
     bullet_image = love.graphics.newImage("assets/bullet.png")
     target_image = love.graphics.newImage("assets/target.png")
     target_dead_image = love.graphics.newImage("assets/target_dead.png")
@@ -137,11 +138,21 @@ function update_guards(dt)
     -- iterate back-to-front to avoid skipping
     for i = #guards, 1, -1 do
         local guard = guards[i]
-        local x, y = guard:get_center()
-        if point_in_player(x, y) then
-            table.remove(guards, i)
-        elseif not player:has_active_ability('freeze time') then
-            guard:update(dt)
+        if not guard.dead then
+            local x, y = guard:get_center()
+            if point_in_player(x, y) then
+                guard.dead = true
+            elseif not player:has_active_ability('freeze time') then
+                guard:update(dt)
+            end
+        else
+            -- guard is dead! alert any guards who see him
+            for j, guard2 in ipairs(guards) do
+                local x, y = guard:get_center()
+                if guard2:is_in_fov(x, y) then
+                    guard2.alert = true
+                end
+            end
         end
     end
 end
@@ -361,7 +372,9 @@ end
 function draw_guards()
     for i, guard in ipairs(guards) do
         local image
-        if guard.alert then
+        if guard.dead then
+            image = guard_dead_image
+        elseif guard.alert then
             image = guard_alert_image
         else
             image = guard_image
@@ -408,16 +421,18 @@ function love.draw()
         camera:attach()
         draw_map(camera)
         for i, guard in ipairs(guards) do
-            if guard:player_is_in_sight() then
-                love.graphics.setColor(255, 0, 0, 100)
-            else
-                love.graphics.setColor(255, 255, 0, 100)
-            end
-            local gx, gy  = guard:get_center()
-            local angle1 = guard.direction - guard.fov_range
-            local angle2 = guard.direction + guard.fov_range
-            for j, t in ipairs(get_fov(gx, gy, angle1, angle2, guard.view_dist)) do
-                love.graphics.polygon('fill', t)
+            if not guard.dead then
+                if guard:player_is_in_sight() then
+                    love.graphics.setColor(255, 0, 0, 100)
+                else
+                    love.graphics.setColor(255, 255, 0, 100)
+                end
+                local gx, gy  = guard:get_center()
+                local angle1 = guard.direction - guard.fov_range
+                local angle2 = guard.direction + guard.fov_range
+                for j, t in ipairs(get_fov(gx, gy, angle1, angle2, guard.view_dist)) do
+                    love.graphics.polygon('fill', t)
+                end
             end
         end
         love.graphics.setColor(255, 255, 255, 255)

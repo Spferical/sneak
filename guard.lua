@@ -16,6 +16,7 @@ Guard = {
     direction = 0,
     fire_cooldown = 0.2,
     time_since_fire = 0,
+    dead = false,
 }
 
 function Guard:new(o)
@@ -92,19 +93,23 @@ function Guard:player_is_in_sight()
     if player:has_active_ability('invisibility') then
         return false
     end
-    -- return false if player is too far away
     px, py = player:get_center()
+    return self:is_in_fov(px, py)
+end
+
+function Guard:is_in_fov(x, y)
+    -- can't be too far away
     local sx, sy = self:get_center()
-    if distance(sx, sy, px, py) > self.view_dist then
+    if distance(sx, sy, x, y) > self.view_dist then
         return false
     end
-    -- has to be within fov angle too
-    local angle = math.atan2(py - sy, px - sx)
+    -- has to be within fov angle
+    local angle = math.atan2(y - sy, x - sx)
     if math.abs(angle - self.direction) > self.fov_range then
         return false
     end
     -- else, check if our sight is unbroken by walls
-    return line_intersects_wall(sx, sy, px, py) == px, py
+    return line_intersects_wall(sx, sy, x, y) == x, y
 end
 
 function Guard:chase_player()
