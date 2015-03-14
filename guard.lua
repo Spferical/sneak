@@ -14,9 +14,11 @@ Guard = {
     alert = false,
     fov_range = math.pi / 3,
     direction = 0,
+    target_direction = 0,
     fire_cooldown = 0.2,
     time_since_fire = 0,
     dead = false,
+    look_time = 0,
 }
 
 function Guard:new(o)
@@ -32,6 +34,8 @@ end
 
 function Guard:update(dt)
     self.time_since_fire = self.time_since_fire + dt
+    -- slowly-ish turn towards our target direction
+    self.direction = (20 * self.direction + self.target_direction) / 21
     if self:player_is_in_sight() then
         self.state = 'chase'
         self.alert = true
@@ -42,31 +46,49 @@ function Guard:update(dt)
             self.time_since_fire = 0
         end
     end
-    if self.path[1] ~= nil then
-        target_x = self.path[1].x + (tile_w - self.width) / 2
-        target_y = self.path[1].y + (tile_h - self.height) / 2
-        dx = target_x - self.x
-        dy = target_y - self.y
-        self.direction = math.atan2(dy, dx)
-
-        -- normalize vector
-        mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
-
-        if self.alert then
-            speed = self.alert_speed
-        else
-            speed = self.speed
+    if self.state == 'looking' then
+        self.look_time = self.look_time - dt
+        if self.look_time <= 0 then
+            self.state = 'wander'
         end
-        dx = dx / mag * dt * speed
-        dy = dy / mag * dt * speed
-
-        if math.sqrt(math.pow(dx, 2) + math.pow(dy, 2)) < mag then
-            self.x = self.x + dx
-            self.y = self.y + dy
+        if math.abs(self.direction - self.target_direction) < math.pi / 64 then
+            self.target_direction = random:random(- math.pi, math.pi)
+        end
+    elseif self.path[1] ~= nil then
+        if random:random() < 1 / 1000 then
+            -- look around
+            self.state = 'looking'
+            self.look_time = random:random(2, 5)
+            self.target_direction = random:random(- math.pi, math.pi)
         else
-            self.x = target_x
-            self.y = target_y
-            table.remove(self.path, 1)
+            -- continue on path
+            target_x = self.path[1].x + (tile_w - self.width) / 2
+            target_y = self.path[1].y + (tile_h - self.height) / 2
+            dx = target_x - self.x
+            dy = target_y - self.y
+            if self.state ~= 'chasing' then
+                self.target_direction = math.atan2(dy, dx)
+            end
+
+            -- normalize vector
+            mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
+
+            if self.alert then
+                speed = self.alert_speed
+            else
+                speed = self.speed
+            end
+            dx = dx / mag * dt * speed
+            dy = dy / mag * dt * speed
+
+            if math.sqrt(math.pow(dx, 2) + math.pow(dy, 2)) < mag then
+                self.x = self.x + dx
+                self.y = self.y + dy
+            else
+                self.x = target_x
+                self.y = target_y
+                table.remove(self.path, 1)
+            end
         end
     else
         self:begin_wander()
@@ -117,6 +139,7 @@ function Guard:chase_player()
     player_map_x = math.floor(x / tile_w)
     player_map_y = math.floor(y / tile_h)
     self.path = self:get_path_to(player_map_x, player_map_y)
+    self.target_angle = math.atan2(y - self.y, x - self.x)
 end
 
 function Guard:begin_wander()
