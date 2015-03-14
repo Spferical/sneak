@@ -251,10 +251,16 @@ function generate_map(level)
     end
 
     -- find a spawn for the player
-    local x = math.floor(map.width / 2)
     local y = map.height - 2
+    local x = math.floor(map.width / 2)
     while map.grid[x][y] == tiles.wall do
         y = y - 1
+        for i = 1, 10 do
+            x = random:random(map.width - 1)
+            if map.grid[x][y] == tiles.floor then
+                break
+            end
+        end
     end
     map.grid[x][y] = tiles.escape
     map.spawn = {x, y}
