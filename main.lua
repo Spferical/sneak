@@ -209,6 +209,10 @@ function update_items(dt)
             -- player picks up item
             ability = Ability:new()
             ability.name = item.ability
+            if ability.name == 'sneakiness' then
+                ability.max_charge = 200
+                ability.charge = 200
+            end
             table.insert(player.abilities, ability)
             player.abilities_by_name[ability.name] = ability
             real_time_since_item_get = 0
@@ -476,7 +480,7 @@ function love.draw()
             love.graphics.setColor(255, 0, 0, 200)
             love.graphics.rectangle('fill', x, y + 30, charge, 10)
             love.graphics.setColor(255, 255, 255, 200)
-            love.graphics.rectangle('fill', x + charge, y + 30, 100 - charge, 10)
+            love.graphics.rectangle('fill', x + charge, y + 30, ability.max_charge - charge, 10)
             love.graphics.setColor(255, 255, 255, 255)
         end
         if debug then
