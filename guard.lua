@@ -139,7 +139,8 @@ function Guard:chase_player()
     player_map_x = math.floor(x / tile_w)
     player_map_y = math.floor(y / tile_h)
     self.path = self:get_path_to(player_map_x, player_map_y)
-    self.target_angle = math.atan2(y - self.y, x - self.x)
+    local sx, sy = self:get_center()
+    self.target_direction = math.atan2(y - sy, x - sx)
 end
 
 function Guard:begin_wander()
