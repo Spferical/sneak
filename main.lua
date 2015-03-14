@@ -143,7 +143,8 @@ function update_guards(dt)
         local guard = guards[i]
         if not guard.dead then
             local x, y = guard:get_center()
-            if point_in_player(x, y) then
+            local px, py = player:get_center()
+            if distance(x, y, px, py) < (player.width + guard.width) / 2 then
                 guard.dead = true
             elseif not player:has_active_ability('freeze time') then
                 guard:update(dt)
