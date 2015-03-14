@@ -426,6 +426,8 @@ function love.draw()
         love.graphics.setFont(title_font)
         love.graphics.printf("Sneak", 25, 25, love.graphics.getWidth() - 50, "center")
         love.graphics.setFont(main_font)
+        love.graphics.printf("A roguelike made in 7 days\nby Matthew Pfeiffer",
+            25, 200, love.graphics.getWidth() - 50, "center")
         love.graphics.printf("Press enter to start", 25, love.graphics.getHeight() - 50, love.graphics.getWidth() - 50, "center")
     elseif gamestate == 'playing' or gamestate == 'gameover' or gamestate == 'win' or gamestate == 'victory' then
         camera:attach()
