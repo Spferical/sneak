@@ -4,7 +4,7 @@ require("target")
 require("abilities")
 ROT = require("rotLove/rotLove/rotLove")
 Camera = require "hump.camera"
-debug = true
+debug = false
 
 random = love.math.newRandomGenerator()
 
