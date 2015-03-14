@@ -2,7 +2,7 @@ Created for the 2015 7DRL challenge
 
 Written by Matthew Pfeiffer (Spferical@gmail.com)
 
-Uses Love2D (https://love2d.org/), hump.camera (http://vrld.github.io/hump/),
+Uses LÖVE (https://love2d.org/), hump.camera (http://vrld.github.io/hump/),
 and rotLove (https://github.com/paulofmandown/rotLove)
 
 TO RUN:
