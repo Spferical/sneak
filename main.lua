@@ -497,7 +497,9 @@ function love.draw()
                 50, 50, love.graphics.getWidth() - 50, "center")
         elseif gamestate == 'victory' then
             love.graphics.setColor(255, 255, 255, 255)
-            love.graphics.printf("YOU WIN THE GAME!\n\nCongratulations!\n\nPress enter to return to the main menu.",
+            love.graphics.printf("YOU SUCCEEDED IN KILLING ALL THE TARGETS AND ESCAPING THE HIDEOUT!\n\n"..
+                "YOU WIN THE GAME!\n\nCongratulations!\n\n"..
+                "Press enter to return to the main menu.",
                 50, 50, love.graphics.getWidth() - 50, "center")
         end
     elseif gamestate == 'instructions' then
