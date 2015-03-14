@@ -283,6 +283,8 @@ end
 function love.keypressed(key, code)
     if key == 'return' then
         if gamestate == 'menu' then
+            start_instructions()
+        elseif gamestate == 'instructions' then
             start_level(1)
         elseif gamestate == 'gameover' then
             gamestate = 'menu'
@@ -300,6 +302,9 @@ function love.keypressed(key, code)
     end
 end
 
+function start_instructions()
+    gamestate = 'instructions'
+end
 
 function handle_player_keys(dt)
     -- returns action, if any taken
@@ -487,5 +492,15 @@ function love.draw()
             love.graphics.printf("YOU WIN THE GAME!\n\nCongratulations!\n\nPress enter to return to the main menu.",
                 50, 50, love.graphics.getWidth() - 50, "center")
         end
+    elseif gamestate == 'instructions' then
+        love.graphics.setColor(0, 255, 0, 255)
+        love.graphics.printf("NEW MISSION\n\n"..
+            "We have discovered the enemy's hideout.\n"..
+            "You are to go in and eliminate the targets.\n"..
+            "Beware: they will be heavily guarded.\n"..
+            "We have reports that they have some experimental "..
+            "technology lying around. Feel free to nab anything you see.\n"..
+            "Escape the way you came from. That's it. Good luck!",
+            50, 50, love.graphics.getWidth() - 100, "center")
     end
 end
