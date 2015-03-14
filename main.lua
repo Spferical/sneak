@@ -194,7 +194,8 @@ end
 
 function update_target(dt)
     local x, y = target:get_center()
-    if point_in_player(x, y) then
+    local px, py = player:get_center()
+    if distance(x, y, px, py) < (target.width + player.width) / 2 then
         target.dead = true
     end
 end
