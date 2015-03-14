@@ -2,6 +2,7 @@ abilities = {
     'quickness',
     'freeze time',
     'invisibility',
+    'sneakiness'
 }
 
 ability_keys = {'z', 'x', 'c', 'v', 'b'}

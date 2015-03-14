@@ -440,7 +440,7 @@ function love.draw()
                 local gx, gy  = guard:get_center()
                 local angle1 = guard.direction - guard.fov_range
                 local angle2 = guard.direction + guard.fov_range
-                for j, t in ipairs(get_fov(gx, gy, angle1, angle2, guard.view_dist)) do
+                for j, t in ipairs(get_fov(gx, gy, angle1, angle2, guard:get_view_dist())) do
                     love.graphics.polygon('fill', t)
                 end
             end

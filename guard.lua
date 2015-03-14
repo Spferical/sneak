@@ -9,7 +9,7 @@ Guard = {
     speed = 75,
     alert_speed = 200,
     bullet_speed = 1000,
-    view_dist = 500,
+    base_view_dist = 500,
     state = 'wander',
     alert = false,
     fov_range = math.pi / 3,
@@ -30,6 +30,14 @@ end
 
 function Guard:get_center()
     return self.x + self.width / 2, self.y + self.height / 2
+end
+
+function Guard:get_view_dist()
+    local view_dist = self.base_view_dist
+    if player:has_active_ability('sneakiness') then
+        view_dist = view_dist / 4
+    end
+    return view_dist
 end
 
 function Guard:update(dt)
@@ -124,7 +132,7 @@ end
 function Guard:is_in_fov(x, y)
     -- can't be too far away
     local sx, sy = self:get_center()
-    if distance(sx, sy, x, y) > self.view_dist then
+    if distance(sx, sy, x, y) > self:get_view_dist() then
         return false
     end
     -- has to be within fov angle
