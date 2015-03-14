@@ -499,7 +499,10 @@ function love.draw()
         love.graphics.printf("NEW MISSION\n\n"..
             "We have discovered the enemy's hideout.\n"..
             "You are to go in and eliminate the targets.\n"..
-            "Beware: they will be heavily guarded.\n"..
+            "Beware: they will be heavily guarded. "..
+            "Their guards will shoot you on sight. "..
+            "You can try knocking them out, but "..
+            "getting in range might be tricky...\n"..
             "We have reports that they have some experimental "..
             "technology lying around. Feel free to nab anything you see.\n"..
             "Escape the way you came from. That's it. Good luck!",
