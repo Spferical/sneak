@@ -35,7 +35,12 @@ end
 function Guard:update(dt)
     self.time_since_fire = self.time_since_fire + dt
     -- slowly-ish turn towards our target direction
-    self.direction = (20 * self.direction + self.target_direction) / 21
+    local look_speed_factor = 20
+    if self.alert then
+        look_speed_factor = 5
+    end
+    self.direction = (look_speed_factor * self.direction
+        + self.target_direction) / (look_speed_factor + 1)
     if self:player_is_in_sight() then
         self.state = 'chase'
         self.alert = true
@@ -45,8 +50,7 @@ function Guard:update(dt)
             self:fire_at(px, py)
             self.time_since_fire = 0
         end
-    end
-    if self.state == 'looking' then
+    elseif self.state == 'looking' then
         self.look_time = self.look_time - dt
         if self.look_time <= 0 then
             self.state = 'wander'
@@ -66,9 +70,7 @@ function Guard:update(dt)
             target_y = self.path[1].y + (tile_h - self.height) / 2
             dx = target_x - self.x
             dy = target_y - self.y
-            if self.state ~= 'chasing' then
-                self.target_direction = math.atan2(dy, dx)
-            end
+            self.target_direction = math.atan2(dy, dx)
 
             -- normalize vector
             mag = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
