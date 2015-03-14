@@ -18,6 +18,8 @@ ABOUT:
 I wanted to make a graphical stealth roguelike that had the semi-realtime
 gameplay of games like Red Rogue in Dogmatic mode.
 
+You are an assassin who is supposed to kill the bright green [T]arget. Avoid
+the guards and perhaps find some items which are of use along the way.
 
 THE ENEMIES:
 Guards randomly wander around. If they see you, they will shoot you and attempt
