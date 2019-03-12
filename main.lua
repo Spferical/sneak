@@ -439,9 +439,9 @@ function love.draw()
         for i, guard in ipairs(guards) do
             if not guard.dead then
                 if guard:player_is_in_sight() then
-                    love.graphics.setColor(255, 0, 0, 100)
+                    love.graphics.setColor(255, 0, 0, 100/255)
                 else
-                    love.graphics.setColor(255, 255, 0, 100)
+                    love.graphics.setColor(255, 255, 0, 100/255)
                 end
                 local gx, gy  = guard:get_center()
                 local angle1 = guard.direction - guard.fov_range
