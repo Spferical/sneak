@@ -368,7 +368,7 @@ function love.resize(w, h)
 end
 
 function get_scale()
-    local map_height = tile_h * map.height
+    local map_height = tile_h * 20
     return math.max(love.graphics.getHeight() / map_height,
         love.graphics.getHeight() / 768 / 4)
 end
