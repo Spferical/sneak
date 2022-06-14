@@ -2,7 +2,7 @@ require("map")
 require("guard")
 require("target")
 require("abilities")
-ROT = require("rotLove/rotLove/rotLove")
+ROT = require("rotLove/src/rot")
 Camera = require "hump.camera"
 debug = false
 

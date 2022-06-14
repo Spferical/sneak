@@ -1,4 +1,4 @@
-ROT=require 'rotLove/rotLove/rotLove'
+ROT=require 'rotLove/src/rot'
 
 
 tiles = {
